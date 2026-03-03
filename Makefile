@@ -1,7 +1,10 @@
 .PHONY: help install sync build up down restart logs ps \
        build-code reload-code \
        dbt-parse dbt-run dbt-test dbt-build dbt-seed dbt-clean dbt-deps dbt-docs \
-       dagster-dev lint test clean
+       dagster-dev \
+       lint lint-fix lint-python lint-sql lint-format \
+       pre-commit pre-commit-install \
+       test clean
 
 # Default Docker Compose project containers
 COMPOSE  := docker compose
@@ -78,10 +81,33 @@ dbt-docs: ## Generate and serve dbt docs
 dagster-dev: ## Start Dagster webserver locally for development
 	uv run dagster dev
 
-## —— Quality ——————————————————————————————————————————————————
-lint: ## Run ruff linter and formatter check
+## —— Quality ──────────────────────────────────────────────────
+lint: lint-python lint-sql lint-format ## Run all linters (ruff + sqlfluff + prettier)
+
+lint-python: ## Ruff lint + format check
 	uv run ruff check .
 	uv run ruff format --check .
+
+lint-sql: ## SQLFluff lint on dbt/models
+	uv run sqlfluff lint dbt/models --dialect postgres
+
+lint-format: ## Prettier check (YAML / JSON / Markdown)
+	npx --yes prettier --check "**/*.yml" "**/*.yaml" "**/*.json" "**/*.md" \
+		--ignore-path .prettierignore
+
+lint-fix: ## Auto-fix all linters (ruff + sqlfluff + prettier)
+	uv run ruff check --fix .
+	uv run ruff format .
+	uv run sqlfluff fix dbt/models --dialect postgres
+	npx --yes prettier --write "**/*.yml" "**/*.yaml" "**/*.json" "**/*.md" \
+		--ignore-path .prettierignore
+
+## —— Pre-commit ────────────────────────────────────────────────
+pre-commit-install: ## Install pre-commit hooks into .git/hooks
+	uv run pre-commit install
+
+pre-commit: ## Run all pre-commit hooks against all files
+	uv run pre-commit run --all-files
 
 test: ## Run pytest
 	uv run pytest

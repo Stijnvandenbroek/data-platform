@@ -2,7 +2,7 @@
 
 import os
 
-from dagster import ConfigurableResource, EnvVar
+from dagster import ConfigurableResource
 from funda import Funda
 from sqlalchemy import create_engine, text
 

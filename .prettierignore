@@ -1,0 +1,10 @@
+# Generated / build artefacts
+dbt/target/
+dbt/dbt_packages/
+.venv/
+dist/
+*.egg-info/
+
+# Dagster storage
+dagster_home/storage/
+dagster_home/logs/

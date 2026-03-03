@@ -1,0 +1,20 @@
+[sqlfluff]
+templater = jinja
+dialect = postgres
+max_line_length = 100
+# Exclude generated/vendor paths
+exclude_rules = RF05  # don't require quoted identifiers
+output_line_length = 120
+
+[sqlfluff:templater:jinja]
+# Stub dbt macros so sqlfluff can lint without a live dbt project
+[sqlfluff:templater:jinja:macros]
+source = "{% macro source(source_name, table_name) %}{{ source_name }}.{{ table_name }}{% endmacro %}"
+ref = "{% macro ref(model_name) %}{{ model_name }}{% endmacro %}"
+
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 4
+
+[sqlfluff:rules:layout.long_lines]
+ignore_comment_lines = true

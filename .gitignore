@@ -23,5 +23,8 @@ dagster_home/logs/
 dagster_home/schedule_logs/
 dagster_home/compute_logs/
 
+# Node
+node_modules/
+
 # Docker
 *.log

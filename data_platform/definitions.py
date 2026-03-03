@@ -26,6 +26,7 @@ dbt_project.prepare_if_dev()
 # dbt assets – every dbt model/test/snapshot becomes a Dagster asset
 # ---------------------------------------------------------------------------
 
+
 @dbt_assets(manifest=dbt_project.manifest_path)
 def dbt_project_assets(context, dbt: DbtCliResource):
     yield from dbt.cli(["build"], context=context).stream()
