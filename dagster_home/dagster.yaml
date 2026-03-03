@@ -1,0 +1,6 @@
+# Dagster stores run history, event logs, and schedules in PostgreSQL.
+# Connection URL is read from the DAGSTER_POSTGRES_URL environment variable.
+storage:
+  postgres:
+    postgres_url:
+      env: DAGSTER_POSTGRES_URL
