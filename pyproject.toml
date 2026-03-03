@@ -18,8 +18,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["data_platform"]
 
-[tool.uv]
-dev-dependencies = [
+[tool.dagster]
+module_name = "data_platform"
+attribute = "defs"
+
+[dependency-groups]
+dev = [
     "pytest",
     "dagster-webserver",
 ]

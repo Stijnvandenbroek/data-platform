@@ -15,3 +15,6 @@ COPY . .
 # Make the venv's binaries available on PATH
 ENV PATH="/app/.venv/bin:$PATH"
 ENV DAGSTER_HOME=/app/dagster_home
+
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]

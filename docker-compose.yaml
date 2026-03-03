@@ -6,6 +6,10 @@ x-dagster: &dagster-common
     context: .
     dockerfile: Dockerfile
   env_file: .env
+  environment:
+    DAGSTER_HOME: /app/dagster_home
+  volumes:
+    - dbt-target:/app/dbt/target
   depends_on:
     postgres:
       condition: service_healthy
@@ -49,3 +53,4 @@ services:
 
 volumes:
   postgres-data:
+  dbt-target:
