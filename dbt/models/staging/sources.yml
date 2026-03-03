@@ -1,0 +1,51 @@
+version: 2
+
+sources:
+  - name: raw_funda
+    schema: raw_funda
+    description: >
+      Raw Funda real-estate data ingested by Dagster assets.
+    tables:
+      - name: search_results
+        description: Funda search results (broad overview of matching listings).
+        columns:
+          - name: global_id
+            description: Funda internal listing ID.
+          - name: title
+            description: Property address / title.
+          - name: city
+            description: City name.
+          - name: price
+            description: Asking or rental price in euros.
+          - name: ingested_at
+            description: Timestamp when the row was written.
+
+      - name: listing_details
+        description: >
+          Full listing details fetched per search result (50+ fields).
+        columns:
+          - name: global_id
+            description: Funda internal listing ID.
+          - name: tiny_id
+            description: Public ID used in Funda URLs.
+          - name: price
+            description: Asking or rental price in euros.
+          - name: status
+            description: Listing status (available or sold).
+          - name: ingested_at
+            description: Timestamp when the row was written.
+
+      - name: price_history
+        description: >
+          Historical price data per listing (asking prices, WOZ, sales).
+        columns:
+          - name: global_id
+            description: Funda internal listing ID.
+          - name: price
+            description: Price at this point in time.
+          - name: source
+            description: Price data source (Funda or WOZ).
+          - name: status
+            description: Price event type (asking_price, sold, or woz).
+          - name: ingested_at
+            description: Timestamp when the row was written.

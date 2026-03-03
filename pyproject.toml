@@ -9,6 +9,7 @@ dependencies = [
     "dagster-dbt",
     "dbt-core",
     "dbt-postgres",
+    "pyfunda",
 ]
 
 [build-system]

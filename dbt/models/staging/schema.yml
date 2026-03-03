@@ -1,12 +1,27 @@
 version: 2
 
 models:
-  - name: stg_example
+  - name: stg_funda_listings
     description: >
-      A placeholder staging model. Replace with your actual source tables.
+      Cleaned Funda listing details – one row per property.
     columns:
-      - name: id
-        description: Primary key.
+      - name: global_id
+        description: Funda internal listing ID.
         tests:
           - unique
           - not_null
+      - name: city
+        description: City name.
+      - name: price
+        description: Asking or rental price in euros.
+
+  - name: stg_funda_price_history
+    description: >
+      Historical price events per listing (asking prices, WOZ assessments, sales).
+    columns:
+      - name: global_id
+        description: Funda internal listing ID.
+        tests:
+          - not_null
+      - name: price
+        description: Price at this point in time.
