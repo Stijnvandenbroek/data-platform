@@ -2,6 +2,7 @@
 
 from dagster import (
     AssetSelection,
+    DefaultScheduleStatus,
     RunConfig,
     ScheduleDefinition,
     define_asset_job,
@@ -34,5 +35,5 @@ funda_ingestion_schedule = ScheduleDefinition(
             "funda_price_history": FundaPriceHistoryConfig(),
         }
     ),
-    default_status="RUNNING",
+    default_status=DefaultScheduleStatus.RUNNING,
 )
