@@ -19,5 +19,7 @@ CREATE TABLE IF NOT EXISTS {{ schema }}.search_results (
     broker_name TEXT,
     raw_json JSONB,
     ingested_at TIMESTAMPTZ DEFAULT now(),
+    last_seen_at TIMESTAMPTZ DEFAULT now(),
+    is_active BOOLEAN DEFAULT TRUE,
     UNIQUE (global_id)
 );

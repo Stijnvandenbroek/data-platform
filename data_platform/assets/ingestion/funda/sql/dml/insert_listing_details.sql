@@ -56,4 +56,6 @@ ON CONFLICT (global_id, status) DO UPDATE SET
     views = excluded.views,
     saves = excluded.saves,
     raw_json = excluded.raw_json,
-    ingested_at = now()
+    ingested_at = now(),
+    last_fetched_at = now(),
+    is_stale = FALSE

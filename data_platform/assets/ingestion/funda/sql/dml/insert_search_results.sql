@@ -29,4 +29,6 @@ ON CONFLICT (global_id) DO UPDATE SET
     broker_id = excluded.broker_id,
     broker_name = excluded.broker_name,
     raw_json = excluded.raw_json,
-    ingested_at = now()
+    ingested_at = now(),
+    last_seen_at = now(),
+    is_active = TRUE

@@ -37,5 +37,7 @@ CREATE TABLE IF NOT EXISTS {{ schema }}.listing_details (
     saves INT,
     raw_json JSONB,
     ingested_at TIMESTAMPTZ DEFAULT now(),
+    last_fetched_at TIMESTAMPTZ DEFAULT now(),
+    is_stale BOOLEAN DEFAULT FALSE,
     UNIQUE (global_id, status)
 );
