@@ -2,9 +2,14 @@
 
 from dagster import job
 
-from data_platform.ops.elementary import elementary_generate_report
+from data_platform.ops.elementary import (
+    elementary_generate_report,
+    elementary_run_models,
+)
 
 
-@job(description="Regenerate the Elementary data observability report.")
+@job(
+    description="Ensure Elementary models exist, then regenerate the observability report."
+)
 def elementary_refresh_job():
-    elementary_generate_report()
+    elementary_generate_report(after=elementary_run_models())

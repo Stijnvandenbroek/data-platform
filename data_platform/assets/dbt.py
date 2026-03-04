@@ -13,7 +13,7 @@ dbt_project = DbtProject(project_dir=str(DBT_PROJECT_DIR))
 dbt_project.prepare_if_dev()
 
 
-@dbt_assets(manifest=dbt_project.manifest_path)
+@dbt_assets(manifest=dbt_project.manifest_path, exclude="package:elementary")
 def dbt_project_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     """Expose every dbt model as a Dagster asset."""
     yield from dbt.cli(["build"], context=context).stream()

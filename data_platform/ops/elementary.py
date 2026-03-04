@@ -1,14 +1,52 @@
-"""Elementary report generation op."""
+"""Elementary ops."""
 
+import os
 import subprocess
 from pathlib import Path
 
-from dagster import OpExecutionContext, op
+from dagster import In, Nothing, OpExecutionContext, op
+from dagster_dbt import DbtCliResource
+from sqlalchemy import create_engine, text
 
 _DBT_DIR = Path(__file__).parents[2] / "dbt"
 
 
+def _elementary_schema_exists() -> bool:
+    url = "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
+        user=os.environ["POSTGRES_USER"],
+        password=os.environ["POSTGRES_PASSWORD"],
+        host=os.environ.get("POSTGRES_HOST", "localhost"),
+        port=os.environ.get("POSTGRES_PORT", "5432"),
+        dbname=os.environ["POSTGRES_DB"],
+    )
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        return bool(
+            conn.execute(
+                text(
+                    "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'elementary'"
+                )
+            ).scalar()
+        )
+
+
 @op
+def elementary_run_models(context: OpExecutionContext, dbt: DbtCliResource) -> None:
+    """Run Elementary dbt models only if the elementary schema does not exist yet."""
+    if _elementary_schema_exists():
+        context.log.info("Elementary schema already exists, skipping model run.")
+        return
+
+    context.log.info("Elementary schema not found, running dbt models.")
+    list(
+        dbt.cli(
+            ["run", "--select", "elementary"],
+            context=context,
+        ).stream()
+    )
+
+
+@op(ins={"after": In(Nothing)})
 def elementary_generate_report(context: OpExecutionContext) -> None:
     """Run edr report to regenerate the Elementary HTML report."""
     cmd = [
