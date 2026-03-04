@@ -1,34 +1,38 @@
 repos:
-  # ── Python: ruff (lint + format) ─────────────────────────────────────────
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.9
+  # ── Local hooks (use uv-managed tool versions from uv.lock) ──────────────
+  - repo: local
     hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
+      - id: ruff-lint
+        name: ruff lint
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
 
-  # ── YAML / JSON / Markdown: prettier ─────────────────────────────────────
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
-    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
+      - id: sqlfluff-lint
+        name: sqlfluff lint
+        entry: uv run sqlfluff lint --dialect postgres
+        language: system
+        types: [sql]
+        files: ^dbt/models/
+
       - id: prettier
-        types_or: [yaml, json, markdown]
+        name: prettier
+        entry: npx --yes prettier --write
+        language: system
+        types_or: [yaml, markdown]
         exclude: |
           (?x)^(
             dbt/target/|
             dbt/dbt_packages/|
-            \.venv/
+            \.venv/|
+            \.pytest_cache/
           )
-
-  # ── SQL: sqlfluff ─────────────────────────────────────────────────────────
-  - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.4.0
-    hooks:
-      - id: sqlfluff-lint
-        additional_dependencies: [sqlfluff-templater-dbt, dbt-core, dbt-postgres]
-      - id: sqlfluff-fix
-        additional_dependencies: [sqlfluff-templater-dbt, dbt-core, dbt-postgres]
-        stages: [manual] # only run sqlfluff-fix manually (make lint-fix)
 
   # ── General hygiene ───────────────────────────────────────────────────────
   - repo: https://github.com/pre-commit/pre-commit-hooks
