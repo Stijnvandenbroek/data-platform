@@ -113,6 +113,9 @@ pre-commit-install: ## Install pre-commit hooks into .git/hooks
 pre-commit: ## Run all pre-commit hooks against all files
 	uv run pre-commit run --all-files
 
+validate: ## Validate Dagster definitions load without errors
+	uv run python -c "from data_platform.definitions import defs; specs = list(defs.resolve_all_asset_specs()) if hasattr(defs, 'resolve_all_asset_specs') else list(defs.get_all_asset_specs()); print(f'OK – {len(specs)} assets, {len(defs.jobs or [])} jobs, {len(defs.schedules or [])} schedules')"
+
 test: ## Run pytest
 	uv run pytest
 
