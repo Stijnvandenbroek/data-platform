@@ -5,43 +5,171 @@ models:
     description: >
       Analysis-ready Funda listings table. One row per listing, enriched with price history, derived
       metrics like price per sqm, and all cleaned fields from staging.
+    config:
+      contract:
+        enforced: true
     meta:
       dagster:
         group: funda
     columns:
       - name: global_id
         description: Funda internal listing ID.
+        data_type: text
+        constraints:
+          - type: not_null
+          - type: unique
         tests:
           - unique
           - not_null
-      - name: current_price
-        description: Current asking or rental price in euros.
-      - name: price_per_sqm
-        description: Current price divided by living area in m².
-      - name: is_sold
-        description: True when a sold price event exists for this listing.
-      - name: sold_price
-        description: Final sold price, null if still available.
-      - name: sold_date
-        description: Date sold, null if still available.
-
-  - name: funda_city_stats
-    description: >
-      Aggregated price statistics per city, province, offering type and object type. Only includes
-      currently available (not sold) listings.
-    meta:
-      dagster:
-        group: funda
-    columns:
+      - name: tiny_id
+        description: Public ID used in Funda URLs.
+        data_type: text
+      - name: url
+        description: Direct link to the Funda listing.
+        data_type: text
+      - name: title
+        description: Property address / title.
+        data_type: text
       - name: city
         description: City name.
+        data_type: text
+        constraints:
+          - type: not_null
         tests:
           - not_null
-      - name: listing_count
-        description: Number of active listings in this group.
-      - name: avg_price
-        description: Average asking price.
-      - name: median_price
-        description: Median asking price.
-      - name: avg_price_per_sqm
-        description: Average price per square metre.
+      - name: postcode
+        description: Dutch postal code.
+        data_type: text
+      - name: province
+        description: Province name.
+        data_type: text
+      - name: neighbourhood
+        description: Neighbourhood name.
+        data_type: text
+      - name: municipality
+        description: Municipality name.
+        data_type: text
+      - name: latitude
+        description: Latitude coordinate.
+        data_type: double precision
+      - name: longitude
+        description: Longitude coordinate.
+        data_type: double precision
+      - name: object_type
+        description: Property type.
+        data_type: text
+      - name: house_type
+        description: Sub-type of the property.
+        data_type: text
+      - name: offering_type
+        description: Buy or rent.
+        data_type: text
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: construction_type
+        description: Construction method.
+        data_type: text
+      - name: construction_year
+        description: Year the property was built.
+        data_type: text
+      - name: energy_label
+        description: Dutch energy performance label (A–G).
+        data_type: text
+      - name: living_area
+        description: Interior floor area in m².
+        data_type: integer
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+              where: "living_area is not null"
+      - name: plot_area
+        description: Total plot area in m².
+        data_type: integer
+      - name: bedrooms
+        description: Number of bedrooms.
+        data_type: integer
+      - name: rooms
+        description: Total number of rooms.
+        data_type: integer
+      - name: has_garden
+        description: Whether the property has a garden.
+        data_type: boolean
+      - name: has_balcony
+        description: Whether the property has a balcony.
+        data_type: boolean
+      - name: has_solar_panels
+        description: Whether solar panels are present.
+        data_type: boolean
+      - name: has_heat_pump
+        description: Whether a heat pump is installed.
+        data_type: boolean
+      - name: has_roof_terrace
+        description: Whether the property has a roof terrace.
+        data_type: boolean
+      - name: is_energy_efficient
+        description: Whether the listing is flagged as energy efficient.
+        data_type: boolean
+      - name: is_monument
+        description: Whether the property is a protected monument.
+        data_type: boolean
+      - name: current_price
+        description: Current asking or rental price in euros.
+        data_type: bigint
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+              where: "current_price is not null"
+      - name: latest_asking_price
+        description: Most recent asking price from price history.
+        data_type: bigint
+      - name: latest_asking_date
+        description: Date of the most recent asking price event.
+        data_type: text
+      - name: sold_price
+        description: Final sold price, null if still available.
+        data_type: bigint
+      - name: sold_date
+        description: Date sold, null if still available.
+        data_type: text
+      - name: is_sold
+        description: True when a sold price event exists for this listing.
+        data_type: boolean
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: photo_count
+        description: Number of photos on the listing.
+        data_type: integer
+      - name: views
+        description: Number of times the listing was viewed.
+        data_type: integer
+      - name: saves
+        description: Number of times the listing was saved as favourite.
+        data_type: integer
+      - name: status
+        description: Listing status.
+        data_type: text
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: publication_date
+        description: Listing publication date.
+        data_type: text
+      - name: ingested_at
+        description: Timestamp when the raw row was first written.
+        data_type: timestamptz
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: price_per_sqm
+        description: Current price divided by living area in m².
+        data_type: numeric
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+              where: "price_per_sqm is not null"

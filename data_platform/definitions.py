@@ -7,8 +7,17 @@ from data_platform.assets.ingestion.funda import (
     funda_price_history,
     funda_search_results,
 )
+from data_platform.jobs import (
+    elementary_refresh_job,
+    funda_ingestion_job,
+    funda_raw_quality_job,
+)
 from data_platform.resources import FundaResource, PostgresResource
-from data_platform.schedules import funda_ingestion_job, funda_ingestion_schedule
+from data_platform.schedules import (
+    elementary_refresh_schedule,
+    funda_ingestion_schedule,
+    funda_raw_quality_schedule,
+)
 
 defs = Definitions(
     assets=[
@@ -17,8 +26,12 @@ defs = Definitions(
         funda_listing_details,
         funda_price_history,
     ],
-    jobs=[funda_ingestion_job],
-    schedules=[funda_ingestion_schedule],
+    jobs=[funda_ingestion_job, funda_raw_quality_job, elementary_refresh_job],
+    schedules=[
+        funda_ingestion_schedule,
+        funda_raw_quality_schedule,
+        elementary_refresh_schedule,
+    ],
     resources={
         "dbt": DbtCliResource(project_dir=str(DBT_PROJECT_DIR)),
         "funda": FundaResource(),

@@ -5,22 +5,153 @@ models:
     description: >
       Listings joined with the most recent asking price and last sold price from price history. One
       row per listing.
+    config:
+      contract:
+        enforced: true
     meta:
       dagster:
         group: funda
     columns:
       - name: global_id
         description: Funda internal listing ID.
+        data_type: text
+        constraints:
+          - type: not_null
+          - type: unique
         tests:
           - unique
           - not_null
+      - name: tiny_id
+        description: Public ID used in Funda URLs.
+        data_type: text
+      - name: title
+        description: Property address / title.
+        data_type: text
+      - name: city
+        description: City name.
+        data_type: text
+        tests:
+          - not_null
+      - name: postcode
+        description: Dutch postal code.
+        data_type: text
+      - name: province
+        description: Province name.
+        data_type: text
+      - name: neighbourhood
+        description: Neighbourhood name.
+        data_type: text
+      - name: municipality
+        description: Municipality name.
+        data_type: text
+      - name: price
+        description: Asking price from the listing details.
+        data_type: bigint
+      - name: price_formatted
+        description: Human-readable price string.
+        data_type: text
+      - name: status
+        description: Listing status.
+        data_type: text
+        tests:
+          - not_null
+      - name: offering_type
+        description: Buy or rent.
+        data_type: text
+        tests:
+          - not_null
+      - name: object_type
+        description: Property type.
+        data_type: text
+      - name: house_type
+        description: Sub-type of the property.
+        data_type: text
+      - name: construction_type
+        description: Construction method.
+        data_type: text
+      - name: construction_year
+        description: Year the property was built.
+        data_type: text
+      - name: energy_label
+        description: Dutch energy performance label (A–G).
+        data_type: text
+      - name: living_area
+        description: Interior floor area in m².
+        data_type: integer
+      - name: plot_area
+        description: Total plot area in m².
+        data_type: integer
+      - name: bedrooms
+        description: Number of bedrooms.
+        data_type: integer
+      - name: rooms
+        description: Total number of rooms.
+        data_type: integer
+      - name: publication_date
+        description: Listing publication date.
+        data_type: text
+      - name: latitude
+        description: Latitude coordinate.
+        data_type: double precision
+      - name: longitude
+        description: Longitude coordinate.
+        data_type: double precision
+      - name: has_garden
+        description: Whether the property has a garden.
+        data_type: boolean
+      - name: has_balcony
+        description: Whether the property has a balcony.
+        data_type: boolean
+      - name: has_solar_panels
+        description: Whether solar panels are present.
+        data_type: boolean
+      - name: has_heat_pump
+        description: Whether a heat pump is installed.
+        data_type: boolean
+      - name: has_roof_terrace
+        description: Whether the property has a roof terrace.
+        data_type: boolean
+      - name: is_energy_efficient
+        description: Whether the listing is flagged as energy efficient.
+        data_type: boolean
+      - name: is_monument
+        description: Whether the property is a protected monument.
+        data_type: boolean
+      - name: url
+        description: Direct link to the Funda listing.
+        data_type: text
+      - name: photo_count
+        description: Number of photos on the listing.
+        data_type: integer
+      - name: views
+        description: Number of times the listing was viewed.
+        data_type: integer
+      - name: saves
+        description: Number of times the listing was saved as favourite.
+        data_type: integer
       - name: latest_asking_price
         description: Most recent asking price from Funda price history.
+        data_type: bigint
       - name: latest_asking_date
         description: Date of the most recent asking price event.
+        data_type: text
       - name: sold_price
         description: Price at which the listing was sold, if applicable.
+        data_type: bigint
       - name: sold_date
         description: Date the listing was sold, if applicable.
+        data_type: text
       - name: is_sold
         description: True when a sold price event exists for this listing.
+        data_type: boolean
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: ingested_at
+        description: Timestamp when the raw row was first written.
+        data_type: timestamptz
+        constraints:
+          - type: not_null
+        tests:
+          - not_null

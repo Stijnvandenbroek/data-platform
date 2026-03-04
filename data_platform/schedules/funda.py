@@ -1,28 +1,13 @@
-"""Dagster jobs and schedules."""
+"""Funda schedules."""
 
-from dagster import (
-    AssetSelection,
-    DefaultScheduleStatus,
-    RunConfig,
-    ScheduleDefinition,
-    define_asset_job,
-)
+from dagster import DefaultScheduleStatus, RunConfig, ScheduleDefinition
 
 from data_platform.assets.ingestion.funda.funda import (
     FundaDetailsConfig,
     FundaPriceHistoryConfig,
     FundaSearchConfig,
 )
-
-funda_ingestion_job = define_asset_job(
-    name="funda_ingestion",
-    selection=AssetSelection.assets(
-        "funda_search_results",
-        "funda_listing_details",
-        "funda_price_history",
-    ),
-    description="Full Funda ingestion pipeline.",
-)
+from data_platform.jobs.funda import funda_ingestion_job, funda_raw_quality_job
 
 funda_ingestion_schedule = ScheduleDefinition(
     name="funda_ingestion_schedule",
@@ -35,5 +20,13 @@ funda_ingestion_schedule = ScheduleDefinition(
             "funda_price_history": FundaPriceHistoryConfig(),
         }
     ),
+    default_status=DefaultScheduleStatus.RUNNING,
+)
+
+funda_raw_quality_schedule = ScheduleDefinition(
+    name="funda_raw_quality_schedule",
+    job=funda_raw_quality_job,
+    cron_schedule="0 8 * * *",
+    description="Daily quality checks on all raw Funda tables.",
     default_status=DefaultScheduleStatus.RUNNING,
 )

@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: funda_city_stats
+    description: >
+      Aggregated price statistics per city, province, offering type and object type. Only includes
+      currently available (not sold) listings.
+    config:
+      contract:
+        enforced: true
+    meta:
+      dagster:
+        group: funda
+    columns:
+      - name: city
+        description: City name.
+        data_type: text
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: province
+        description: Province name.
+        data_type: text
+      - name: offering_type
+        description: Buy or rent.
+        data_type: text
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: object_type
+        description: Property type.
+        data_type: text
+      - name: listing_count
+        description: Number of active listings in this group.
+        data_type: bigint
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+      - name: avg_price
+        description: Average asking price.
+        data_type: numeric
+      - name: min_price
+        description: Lowest asking price in this group.
+        data_type: bigint
+      - name: max_price
+        description: Highest asking price in this group.
+        data_type: bigint
+      - name: median_price
+        description: Median asking price.
+        data_type: double precision
+      - name: avg_price_per_sqm
+        description: Average price per square metre.
+        data_type: numeric
+      - name: avg_living_area
+        description: Average living area in m².
+        data_type: numeric
+      - name: avg_bedrooms
+        description: Average number of bedrooms.
+        data_type: numeric

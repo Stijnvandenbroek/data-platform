@@ -11,17 +11,40 @@ sources:
         meta:
           dagster:
             asset_key: ["funda_search_results"]
+        loaded_at_field: last_seen_at
+        freshness:
+          warn_after: { count: 12, period: hour }
+          error_after: { count: 25, period: hour }
         columns:
           - name: global_id
             description: Funda internal listing ID.
+            tests:
+              - unique
+              - not_null
           - name: title
             description: Property address / title.
+            tests:
+              - not_null
           - name: city
             description: City name.
+            tests:
+              - not_null
           - name: price
             description: Asking or rental price in euros.
+          - name: is_active
+            description: False when the listing has not appeared in search results for 7+ days.
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [true, false]
+          - name: last_seen_at
+            description: Timestamp the listing was last returned by the Funda search API.
+            tests:
+              - not_null
           - name: ingested_at
-            description: Timestamp when the row was written.
+            description: Timestamp when the row was first written.
+            tests:
+              - not_null
 
       - name: listing_details
         description: >
@@ -29,17 +52,44 @@ sources:
         meta:
           dagster:
             asset_key: ["funda_listing_details"]
+        loaded_at_field: last_fetched_at
+        freshness:
+          warn_after: { count: 25, period: hour }
+          error_after: { count: 49, period: hour }
         columns:
           - name: global_id
             description: Funda internal listing ID.
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_funda', 'search_results')
+                  field: global_id
           - name: tiny_id
             description: Public ID used in Funda URLs.
+            tests:
+              - not_null
           - name: price
             description: Asking or rental price in euros.
           - name: status
             description: Listing status (available or sold).
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["available", "sold", "withdrawn", "under_negotiation"]
+          - name: is_stale
+            description: True when the parent search listing is no longer active.
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [true, false]
+          - name: last_fetched_at
+            description: Timestamp of the most recent detail fetch.
+            tests:
+              - not_null
           - name: ingested_at
-            description: Timestamp when the row was written.
+            description: Timestamp when the row was first written.
+            tests:
+              - not_null
 
       - name: price_history
         description: >
@@ -47,14 +97,37 @@ sources:
         meta:
           dagster:
             asset_key: ["funda_price_history"]
+        loaded_at_field: ingested_at
+        freshness:
+          warn_after: { count: 25, period: hour }
+          error_after: { count: 49, period: hour }
         columns:
           - name: global_id
             description: Funda internal listing ID.
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_funda', 'listing_details')
+                  field: global_id
           - name: price
             description: Price at this point in time.
+          - name: date
+            description: Date of this price event.
+            tests:
+              - not_null
           - name: source
-            description: Price data source (Funda or WOZ).
+            description: Price data source (funda or woz).
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["funda", "woz", "cadastre"]
           - name: status
             description: Price event type (asking_price, sold, or woz).
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["asking_price", "sold", "woz", "withdrawn"]
           - name: ingested_at
             description: Timestamp when the row was written.
+            tests:
+              - not_null
