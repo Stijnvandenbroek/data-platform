@@ -1,4 +1,4 @@
-"""Shared Dagster resources for the data platform."""
+"""Dagster resources."""
 
 import os
 

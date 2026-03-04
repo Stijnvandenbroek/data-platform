@@ -10,10 +10,6 @@ from data_platform.assets.funda import (
 from data_platform.resources import FundaResource, PostgresResource
 from data_platform.schedules import funda_ingestion_job, funda_ingestion_schedule
 
-# ---------------------------------------------------------------------------
-# Definitions
-# ---------------------------------------------------------------------------
-
 defs = Definitions(
     assets=[
         dbt_project_assets,

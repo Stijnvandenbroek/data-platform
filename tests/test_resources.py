@@ -4,8 +4,6 @@ from unittest.mock import MagicMock, patch
 
 from data_platform.resources import FundaResource, PostgresResource
 
-# ── FundaResource ─────────────────────────────────────────────────────────────
-
 
 class TestFundaResource:
     def test_get_client_returns_funda_instance(self):
@@ -22,9 +20,6 @@ class TestFundaResource:
     def test_custom_timeout(self):
         resource = FundaResource(timeout=60)
         assert resource.timeout == 60
-
-
-# ── PostgresResource ──────────────────────────────────────────────────────────
 
 
 class TestPostgresResource:
@@ -60,7 +55,6 @@ class TestPostgresResource:
             assert call_url.startswith("postgresql://")
 
     def test_execute_calls_engine_begin(self):
-        """execute() wraps its statement in engine.begin()."""
         mock_engine = MagicMock()
         mock_conn = MagicMock()
         mock_engine.begin.return_value.__enter__ = MagicMock(return_value=mock_conn)
@@ -74,7 +68,6 @@ class TestPostgresResource:
         mock_conn.execute.assert_called_once()
 
     def test_execute_many_calls_engine_begin(self):
-        """execute_many() wraps its statement in engine.begin()."""
         mock_engine = MagicMock()
         mock_conn = MagicMock()
         mock_engine.begin.return_value.__enter__ = MagicMock(return_value=mock_conn)

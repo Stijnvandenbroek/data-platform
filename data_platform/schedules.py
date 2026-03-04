@@ -1,4 +1,4 @@
-"""Dagster jobs and schedules for the data platform."""
+"""Dagster jobs and schedules."""
 
 from dagster import (
     AssetSelection,
@@ -13,10 +13,6 @@ from data_platform.assets.funda import (
     FundaSearchConfig,
 )
 
-# ---------------------------------------------------------------------------
-# Jobs
-# ---------------------------------------------------------------------------
-
 funda_ingestion_job = define_asset_job(
     name="funda_ingestion",
     selection=AssetSelection.assets(
@@ -24,17 +20,13 @@ funda_ingestion_job = define_asset_job(
         "funda_listing_details",
         "funda_price_history",
     ),
-    description="Run the full Funda ingestion pipeline (search → details → price history).",
+    description="Full Funda ingestion pipeline.",
 )
-
-# ---------------------------------------------------------------------------
-# Schedules
-# ---------------------------------------------------------------------------
 
 funda_ingestion_schedule = ScheduleDefinition(
     name="funda_ingestion_schedule",
     job=funda_ingestion_job,
-    cron_schedule="0 */4 * * *",  # every 4 hours
+    cron_schedule="0 */4 * * *",
     run_config=RunConfig(
         ops={
             "funda_search_results": FundaSearchConfig(),

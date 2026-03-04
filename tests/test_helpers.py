@@ -1,4 +1,4 @@
-"""Tests for pure helper functions in data_platform.assets.helpers."""
+"""Tests for helper functions."""
 
 from data_platform.helpers import (
     format_area,
@@ -7,8 +7,6 @@ from data_platform.helpers import (
     safe,
     safe_int,
 )
-
-# ── safe_int ────────────────────────────────────────────────────────────────
 
 
 class TestSafeInt:
@@ -43,9 +41,6 @@ class TestSafeInt:
         assert safe_int([1, 2, 3]) is None
 
 
-# ── safe ─────────────────────────────────────────────────────────────────────
-
-
 class TestSafe:
     def test_dict_becomes_json_string(self):
         result = safe({"key": "val"})
@@ -76,9 +71,6 @@ class TestSafe:
         assert json.loads(result) == data
 
 
-# ── format_euro ──────────────────────────────────────────────────────────────
-
-
 class TestFormatEuro:
     def test_formats_price(self):
         assert format_euro(350000) == "€350,000"
@@ -90,9 +82,6 @@ class TestFormatEuro:
         assert format_euro(0) == "–"
 
 
-# ── format_area ──────────────────────────────────────────────────────────────
-
-
 class TestFormatArea:
     def test_formats_area(self):
         assert format_area(80) == "80 m²"
@@ -102,9 +91,6 @@ class TestFormatArea:
 
     def test_zero_returns_dash(self):
         assert format_area(0) == "–"
-
-
-# ── md_preview_table ─────────────────────────────────────────────────────────
 
 
 class TestMdPreviewTable:

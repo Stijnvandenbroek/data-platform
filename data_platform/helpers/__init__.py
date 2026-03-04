@@ -1,10 +1,10 @@
-"""Shared helper utilities for Dagster assets."""
+"""Shared helper utilities."""
 
 import json
 
 
 def safe(val):
-    """Convert non-serialisable values (tuples, lists of dicts, etc.) for JSONB."""
+    """Convert non-serialisable values for JSONB storage."""
     if isinstance(val, list | dict | tuple):
         return json.dumps(val, default=str)
     return val
@@ -28,15 +28,7 @@ def md_preview_table(
     columns: list[tuple[str, str]],
     formatters: dict[str, callable] | None = None,
 ) -> str:
-    """Build a markdown table from a list of row dicts.
-
-    Args:
-        rows: List of dictionaries containing row data.
-        columns: List of (key, header_label) tuples defining the columns.
-        formatters: Optional dict mapping column keys to formatting callables.
-            Each callable receives the raw value and returns a display string.
-            Columns without a formatter fall back to the raw value or "–".
-    """
+    """Build a markdown table from a list of row dicts."""
     formatters = formatters or {}
     headers = [label for _, label in columns]
     lines = [
@@ -56,10 +48,10 @@ def md_preview_table(
 
 
 def format_euro(val) -> str:
-    """Format an integer as €-prefixed with thousands separators, or '–'."""
+    """Format an integer as €-prefixed, or '–'."""
     return f"€{val:,}" if val else "–"
 
 
 def format_area(val) -> str:
-    """Format an integer as m² area, or '–'."""
+    """Format an integer as m², or '–'."""
     return f"{val} m²" if val else "–"

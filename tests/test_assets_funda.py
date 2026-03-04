@@ -1,4 +1,4 @@
-"""Tests for Funda Dagster assets using mocked external dependencies."""
+"""Tests for Funda assets."""
 
 from unittest.mock import MagicMock
 
@@ -12,13 +12,9 @@ from data_platform.assets.funda import (
 )
 from tests.conftest import make_mock_engine, make_mock_listing
 
-# ---------------------------------------------------------------------------
-# Duck-typed mock resources (bypass frozen-Pydantic ConfigurableResource)
-# ---------------------------------------------------------------------------
-
 
 class MockFundaResource:
-    """Minimal test double for FundaResource."""
+    """Test double for FundaResource."""
 
     def __init__(self, client):
         self._client = client
@@ -28,7 +24,7 @@ class MockFundaResource:
 
 
 class MockPostgresResource:
-    """Minimal test double for PostgresResource."""
+    """Test double for PostgresResource."""
 
     def __init__(self, engine=None, inserted_rows: list | None = None):
         self._engine = engine or make_mock_engine()[0]
@@ -43,10 +39,6 @@ class MockPostgresResource:
     def execute_many(self, statement, rows):
         self._inserted_rows.extend(rows)
 
-
-# ---------------------------------------------------------------------------
-# Shared listing data
-# ---------------------------------------------------------------------------
 
 _SEARCH_LISTING_DATA = {
     "global_id": "1234567",
@@ -93,11 +85,6 @@ _DETAIL_LISTING_DATA = {
     "views": 150,
     "saves": 30,
 }
-
-
-# ---------------------------------------------------------------------------
-# funda_search_results
-# ---------------------------------------------------------------------------
 
 
 class TestFundaSearchResults:
@@ -204,11 +191,6 @@ class TestFundaSearchResults:
         assert client.search_listing.call_args[1]["energy_label"] == ["A", "A+"]
 
 
-# ---------------------------------------------------------------------------
-# funda_listing_details
-# ---------------------------------------------------------------------------
-
-
 class TestFundaListingDetails:
     def _run(self, mock_client, engine, inserted_rows=None):
         rows = inserted_rows if inserted_rows is not None else []
@@ -254,11 +236,6 @@ class TestFundaListingDetails:
         mat = result.asset_materializations_for_node("funda_listing_details")
         assert mat[0].metadata["errors"].value == 1
         assert len(inserted) == 1
-
-
-# ---------------------------------------------------------------------------
-# funda_price_history
-# ---------------------------------------------------------------------------
 
 
 class TestFundaPriceHistory:
@@ -312,11 +289,6 @@ class TestFundaPriceHistory:
         assert mat[0].metadata["count"].value == 2
 
 
-# ---------------------------------------------------------------------------
-# FundaSearchConfig
-# ---------------------------------------------------------------------------
-
-
 class TestFundaSearchConfig:
     def test_defaults(self):
         cfg = FundaSearchConfig()
@@ -337,8 +309,3 @@ class TestFundaSearchConfig:
         assert cfg.location == "rotterdam"
         assert cfg.offering_type == "rent"
         assert cfg.price_max == 2000
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------

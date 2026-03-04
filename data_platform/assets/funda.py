@@ -1,12 +1,4 @@
-"""Dagster assets for Funda real-estate data ingestion.
-
-Three assets form a pipeline:
-
-    funda_search_results  →  funda_listing_details  →  funda_price_history
-
-Each asset is configurable from the Dagster launchpad so search
-parameters (location, price range, etc.) can be tweaked per run.
-"""
+"""Funda real-estate ingestion assets."""
 
 import json
 
@@ -27,13 +19,9 @@ from data_platform.helpers import (
 )
 from data_platform.resources import FundaResource, PostgresResource
 
-# ---------------------------------------------------------------------------
-# Launchpad config schemas
-# ---------------------------------------------------------------------------
-
 
 class FundaSearchConfig(Config):
-    """Launchpad parameters for the Funda search asset."""
+    """Search parameters for Funda."""
 
     location: str = "woerden, utrecht, zeist, maarssen, nieuwegein, gouda"
     offering_type: str = "buy"
@@ -43,28 +31,24 @@ class FundaSearchConfig(Config):
     area_max: int | None = None
     plot_min: int | None = None
     plot_max: int | None = None
-    object_type: str | None = None  # comma-separated, e.g. "house,apartment"
-    energy_label: str | None = None  # comma-separated, e.g. "A,A+,A++"
+    object_type: str | None = None
+    energy_label: str | None = None
     radius_km: int | None = None
     sort: str = "newest"
     max_pages: int = 3
 
 
 class FundaDetailsConfig(Config):
-    """Launchpad parameters for the listing-details asset."""
+    """Config for listing details fetch."""
 
-    fetch_all: bool = True  # fetch details for every search result
+    fetch_all: bool = True
 
 
 class FundaPriceHistoryConfig(Config):
-    """Launchpad parameters for the price-history asset."""
+    """Config for price history fetch."""
 
-    fetch_all: bool = True  # fetch price history for every detailed listing
+    fetch_all: bool = True
 
-
-# ---------------------------------------------------------------------------
-# SQL helpers
-# ---------------------------------------------------------------------------
 
 _SCHEMA = "raw_funda"
 
@@ -152,8 +136,7 @@ CREATE TABLE IF NOT EXISTS {_SCHEMA}.price_history (
 );
 """
 
-# Idempotent constraint migrations for tables created before the UNIQUE clauses.
-# Deduplicates existing rows (keeps the most recent) before adding the constraint.
+# Deduplicate existing rows and add constraints for tables created before UNIQUE clauses.
 _MIGRATE_SEARCH_CONSTRAINT = f"""
 DO $$
 BEGIN
@@ -216,11 +199,6 @@ END $$;
 """
 
 
-# ---------------------------------------------------------------------------
-# Assets
-# ---------------------------------------------------------------------------
-
-
 @asset(
     group_name="funda",
     kinds={"python", "postgres"},
@@ -234,7 +212,6 @@ def funda_search_results(
 ) -> MaterializeResult:
     client = funda.get_client()
 
-    # Build search kwargs from launchpad config
     kwargs: dict = {
         "location": [loc.strip() for loc in config.location.split(",")],
         "offering_type": config.offering_type,
@@ -259,7 +236,6 @@ def funda_search_results(
     if config.radius_km is not None:
         kwargs["radius_km"] = config.radius_km
 
-    # Paginate through results
     all_listings = []
     for page in range(config.max_pages):
         context.log.info(f"Fetching search page {page + 1}/{config.max_pages} …")
@@ -275,7 +251,6 @@ def funda_search_results(
         context.log.warning("Search returned zero results.")
         return MaterializeResult(metadata={"count": 0})
 
-    # Write to Postgres
     engine = postgres.get_engine()
     with engine.begin() as conn:
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {_SCHEMA}"))
@@ -389,7 +364,6 @@ def funda_listing_details(
         conn.execute(text(_DDL_DETAILS))
         conn.execute(text(_MIGRATE_DETAILS_CONSTRAINT))
 
-    # Read listing IDs from search results
     with engine.connect() as conn:
         result = conn.execute(
             text(f"SELECT DISTINCT global_id FROM {_SCHEMA}.search_results")
@@ -564,7 +538,6 @@ def funda_price_history(
         conn.execute(text(_DDL_PRICE_HISTORY))
         conn.execute(text(_MIGRATE_PRICE_HISTORY_CONSTRAINT))
 
-    # Read listings from details table
     with engine.connect() as conn:
         result = conn.execute(
             text(f"SELECT DISTINCT global_id FROM {_SCHEMA}.listing_details")
@@ -583,7 +556,6 @@ def funda_price_history(
     errors = 0
     for i, gid in enumerate(ids):
         try:
-            # get_price_history needs a Listing object, so fetch it first
             listing = client.get_listing(int(gid))
             history = client.get_price_history(listing)
             for entry in history:

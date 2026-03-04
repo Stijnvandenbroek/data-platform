@@ -9,11 +9,11 @@ DBT_PROJECT_DIR = Path(__file__).parent.parent.parent / "dbt"
 
 dbt_project = DbtProject(project_dir=str(DBT_PROJECT_DIR))
 
-# When running locally outside Docker, generate/refresh the manifest automatically.
+# Generate manifest locally outside Docker.
 dbt_project.prepare_if_dev()
 
 
 @dbt_assets(manifest=dbt_project.manifest_path)
 def dbt_project_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    """Every dbt model/test/snapshot becomes a Dagster asset."""
+    """Expose every dbt model as a Dagster asset."""
     yield from dbt.cli(["build"], context=context).stream()
