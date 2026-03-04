@@ -320,11 +320,12 @@ class TestFundaPriceHistory:
 class TestFundaSearchConfig:
     def test_defaults(self):
         cfg = FundaSearchConfig()
-        assert cfg.location == "amsterdam"
+        assert cfg.location == "woerden, utrecht, zeist, maarssen, nieuwegein, gouda"
         assert cfg.offering_type == "buy"
         assert cfg.sort == "newest"
         assert cfg.max_pages == 3
-        assert cfg.price_min is None
+        assert cfg.price_min == 300000
+        assert cfg.price_max == 500000
 
     def test_custom_values(self):
         cfg = FundaSearchConfig(
