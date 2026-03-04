@@ -4,6 +4,9 @@ models:
   - name: stg_funda_listings
     description: >
       Cleaned Funda listing details – one row per property.
+    meta:
+      dagster:
+        group: funda
     columns:
       - name: global_id
         description: Funda internal listing ID.
@@ -18,6 +21,9 @@ models:
   - name: stg_funda_price_history
     description: >
       Historical price events per listing (asking prices, WOZ assessments, sales).
+    meta:
+      dagster:
+        group: funda
     columns:
       - name: global_id
         description: Funda internal listing ID.

@@ -8,6 +8,9 @@ sources:
     tables:
       - name: search_results
         description: Funda search results (broad overview of matching listings).
+        meta:
+          dagster:
+            asset_key: ["funda_search_results"]
         columns:
           - name: global_id
             description: Funda internal listing ID.
@@ -23,6 +26,9 @@ sources:
       - name: listing_details
         description: >
           Full listing details fetched per search result (50+ fields).
+        meta:
+          dagster:
+            asset_key: ["funda_listing_details"]
         columns:
           - name: global_id
             description: Funda internal listing ID.
@@ -38,6 +44,9 @@ sources:
       - name: price_history
         description: >
           Historical price data per listing (asking prices, WOZ, sales).
+        meta:
+          dagster:
+            asset_key: ["funda_price_history"]
         columns:
           - name: global_id
             description: Funda internal listing ID.
