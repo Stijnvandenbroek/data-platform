@@ -19,6 +19,12 @@ from dagster import (
 )
 from sqlalchemy import text
 
+from data_platform.assets.helpers import (
+    format_area,
+    format_euro,
+    md_preview_table,
+    safe_int,
+)
 from data_platform.resources import FundaResource, PostgresResource
 
 # ---------------------------------------------------------------------------
@@ -144,26 +150,6 @@ CREATE TABLE IF NOT EXISTS {_SCHEMA}.price_history (
 """
 
 
-def _safe(val):
-    """Convert non-serialisable values (tuples, lists of dicts, etc.) for JSONB."""
-    if isinstance(val, list | dict | tuple):
-        return json.dumps(val, default=str)
-    return val
-
-
-def _safe_int(val):
-    """Try to cast to int, return None on failure."""
-    if val is None:
-        return None
-    try:
-        return int(val)
-    except (ValueError, TypeError):
-        try:
-            return int(float(val))
-        except (ValueError, TypeError):
-            return None
-
-
 # ---------------------------------------------------------------------------
 # Assets
 # ---------------------------------------------------------------------------
@@ -242,11 +228,11 @@ def funda_search_results(
                 "postcode": d.get("postcode"),
                 "province": d.get("province"),
                 "neighbourhood": d.get("neighbourhood"),
-                "price": _safe_int(d.get("price")),
-                "living_area": _safe_int(d.get("living_area")),
-                "plot_area": _safe_int(d.get("plot_area")),
-                "bedrooms": _safe_int(d.get("bedrooms")),
-                "rooms": _safe_int(d.get("rooms")),
+                "price": safe_int(d.get("price")),
+                "living_area": safe_int(d.get("living_area")),
+                "plot_area": safe_int(d.get("plot_area")),
+                "bedrooms": safe_int(d.get("bedrooms")),
+                "rooms": safe_int(d.get("rooms")),
                 "energy_label": d.get("energy_label"),
                 "object_type": d.get("object_type"),
                 "offering_type": d.get("offering_type"),
@@ -282,7 +268,17 @@ def funda_search_results(
             "location": MetadataValue.text(config.location),
             "offering_type": MetadataValue.text(config.offering_type),
             "preview": MetadataValue.md(
-                _search_preview_table(rows[:10]),
+                md_preview_table(
+                    rows[:10],
+                    columns=[
+                        ("title", "Title"),
+                        ("city", "City"),
+                        ("price", "Price"),
+                        ("living_area", "Area"),
+                        ("bedrooms", "Bedrooms"),
+                    ],
+                    formatters={"price": format_euro, "living_area": format_area},
+                ),
             ),
         }
     )
@@ -340,7 +336,7 @@ def funda_listing_details(
                     "province": d.get("province"),
                     "neighbourhood": d.get("neighbourhood"),
                     "municipality": d.get("municipality"),
-                    "price": _safe_int(d.get("price")),
+                    "price": safe_int(d.get("price")),
                     "price_formatted": d.get("price_formatted"),
                     "status": d.get("status"),
                     "offering_type": d.get("offering_type"),
@@ -349,10 +345,10 @@ def funda_listing_details(
                     "construction_type": d.get("construction_type"),
                     "construction_year": d.get("construction_year"),
                     "energy_label": d.get("energy_label"),
-                    "living_area": _safe_int(d.get("living_area")),
-                    "plot_area": _safe_int(d.get("plot_area")),
-                    "bedrooms": _safe_int(d.get("bedrooms")),
-                    "rooms": _safe_int(d.get("rooms")),
+                    "living_area": safe_int(d.get("living_area")),
+                    "plot_area": safe_int(d.get("plot_area")),
+                    "bedrooms": safe_int(d.get("bedrooms")),
+                    "rooms": safe_int(d.get("rooms")),
                     "description": d.get("description"),
                     "publication_date": d.get("publication_date"),
                     "latitude": d.get("latitude"),
@@ -365,9 +361,9 @@ def funda_listing_details(
                     "is_energy_efficient": d.get("is_energy_efficient"),
                     "is_monument": d.get("is_monument"),
                     "url": d.get("url"),
-                    "photo_count": _safe_int(d.get("photo_count")),
-                    "views": _safe_int(d.get("views")),
-                    "saves": _safe_int(d.get("saves")),
+                    "photo_count": safe_int(d.get("photo_count")),
+                    "views": safe_int(d.get("views")),
+                    "saves": safe_int(d.get("saves")),
                     "raw_json": json.dumps(d, default=str),
                 }
             )
@@ -413,7 +409,17 @@ def funda_listing_details(
             "count": len(rows),
             "errors": errors,
             "preview": MetadataValue.md(
-                _details_preview_table(rows[:10]),
+                md_preview_table(
+                    rows[:10],
+                    columns=[
+                        ("title", "Title"),
+                        ("city", "City"),
+                        ("price", "Price"),
+                        ("status", "Status"),
+                        ("energy_label", "Energy"),
+                    ],
+                    formatters={"price": format_euro},
+                ),
             ),
         }
     )
@@ -468,7 +474,7 @@ def funda_price_history(
                 rows.append(
                     {
                         "global_id": gid,
-                        "price": _safe_int(entry.get("price")),
+                        "price": safe_int(entry.get("price")),
                         "human_price": entry.get("human_price"),
                         "date": entry.get("date"),
                         "timestamp": entry.get("timestamp"),
@@ -504,39 +510,3 @@ def funda_price_history(
             "listings_processed": len(ids) - errors,
         }
     )
-
-
-# ---------------------------------------------------------------------------
-# Metadata preview helpers
-# ---------------------------------------------------------------------------
-
-
-def _search_preview_table(rows: list[dict]) -> str:
-    """Build a markdown table for search result metadata preview."""
-    lines = [
-        "| Title | City | Price | Area | Bedrooms |",
-        "| --- | --- | --- | --- | --- |",
-    ]
-    for r in rows:
-        price = f"€{r['price']:,}" if r.get("price") else "–"
-        area = f"{r['living_area']} m²" if r.get("living_area") else "–"
-        lines.append(
-            f"| {r.get('title', '–')} | {r.get('city', '–')} "
-            f"| {price} | {area} | {r.get('bedrooms', '–')} |"
-        )
-    return "\n".join(lines)
-
-
-def _details_preview_table(rows: list[dict]) -> str:
-    """Build a markdown table for listing details metadata preview."""
-    lines = [
-        "| Title | City | Price | Status | Energy |",
-        "| --- | --- | --- | --- | --- |",
-    ]
-    for r in rows:
-        price = f"€{r['price']:,}" if r.get("price") else "–"
-        lines.append(
-            f"| {r.get('title', '–')} | {r.get('city', '–')} "
-            f"| {price} | {r.get('status', '–')} | {r.get('energy_label', '–')} |"
-        )
-    return "\n".join(lines)
