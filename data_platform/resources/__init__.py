@@ -1,8 +1,6 @@
 """Dagster resources."""
 
-import os
-
-from dagster import ConfigurableResource
+from dagster import ConfigurableResource, EnvVar
 from funda import Funda
 from sqlalchemy import create_engine, text
 
@@ -19,11 +17,11 @@ class FundaResource(ConfigurableResource):
 class PostgresResource(ConfigurableResource):
     """Lightweight Postgres resource for raw ingestion writes."""
 
-    host: str = os.getenv("POSTGRES_HOST", "localhost")
-    port: int = int(os.getenv("POSTGRES_PORT", "5432"))
-    user: str = os.getenv("POSTGRES_USER", "")
-    password: str = os.getenv("POSTGRES_PASSWORD", "")
-    dbname: str = os.getenv("POSTGRES_DB", "")
+    host: str = EnvVar("POSTGRES_HOST")
+    port: int = EnvVar.int("POSTGRES_PORT")
+    user: str = EnvVar("POSTGRES_USER")
+    password: str = EnvVar("POSTGRES_PASSWORD")
+    dbname: str = EnvVar("POSTGRES_DB")
 
     def get_engine(self):
         url = f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbname}"
