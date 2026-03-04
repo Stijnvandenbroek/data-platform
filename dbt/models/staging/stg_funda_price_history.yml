@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: stg_funda_price_history
+    description: Historical price events per listing (asking prices, WOZ assessments, sales).
+    meta:
+      dagster:
+        group: funda
+    columns:
+      - name: global_id
+        description: Funda internal listing ID.
+        tests:
+          - not_null
+      - name: price
+        description: Price at this point in time.

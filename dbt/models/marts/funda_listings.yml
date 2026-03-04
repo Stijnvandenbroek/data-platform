@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: funda_listings
+    description: >
+      Analysis-ready Funda listings table. One row per listing, enriched with price history, derived
+      metrics like price per sqm, and all cleaned fields from staging.
+    meta:
+      dagster:
+        group: funda
+    columns:
+      - name: global_id
+        description: Funda internal listing ID.
+        tests:
+          - unique
+          - not_null
+      - name: current_price
+        description: Current asking or rental price in euros.
+      - name: price_per_sqm
+        description: Current price divided by living area in m².
+      - name: is_sold
+        description: True when a sold price event exists for this listing.
+      - name: sold_price
+        description: Final sold price, null if still available.
+      - name: sold_date
+        description: Date sold, null if still available.
+
+  - name: funda_city_stats
+    description: >
+      Aggregated price statistics per city, province, offering type and object type. Only includes
+      currently available (not sold) listings.
+    meta:
+      dagster:
+        group: funda
+    columns:
+      - name: city
+        description: City name.
+        tests:
+          - not_null
+      - name: listing_count
+        description: Number of active listings in this group.
+      - name: avg_price
+        description: Average asking price.
+      - name: median_price
+        description: Median asking price.
+      - name: avg_price_per_sqm
+        description: Average price per square metre.

@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_funda_listings_enriched
+    description: >
+      Listings joined with the most recent asking price and last sold price from price history. One
+      row per listing.
+    meta:
+      dagster:
+        group: funda
+    columns:
+      - name: global_id
+        description: Funda internal listing ID.
+        tests:
+          - unique
+          - not_null
+      - name: latest_asking_price
+        description: Most recent asking price from Funda price history.
+      - name: latest_asking_date
+        description: Date of the most recent asking price event.
+      - name: sold_price
+        description: Price at which the listing was sold, if applicable.
+      - name: sold_date
+        description: Date the listing was sold, if applicable.
+      - name: is_sold
+        description: True when a sold price event exists for this listing.

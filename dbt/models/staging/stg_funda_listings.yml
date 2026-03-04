@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: stg_funda_listings
+    description: Cleaned Funda listing details – one row per property.
+    meta:
+      dagster:
+        group: funda
+    columns:
+      - name: global_id
+        description: Funda internal listing ID.
+        tests:
+          - unique
+          - not_null
+      - name: city
+        description: City name.
+      - name: price
+        description: Asking or rental price in euros.
