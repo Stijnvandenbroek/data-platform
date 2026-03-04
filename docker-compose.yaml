@@ -1,10 +1,5 @@
-version: "3.9"
-
 # Shared config for all dagster services
 x-dagster: &dagster-common
-  build:
-    context: .
-    dockerfile: Dockerfile
   env_file: .env
   environment:
     DAGSTER_HOME: /app/dagster_home
@@ -37,34 +32,49 @@ services:
   # User code gRPC server
   dagster-usercode:
     <<: *dagster-common
+    build:
+      context: .
+      target: usercode
     container_name: dagster-usercode
-    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "data_platform"]
+    command:
+      ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "data_platform.definitions"]
     volumes:
       - dbt-target:/app/dbt/target
     expose:
       - "4000"
+    healthcheck:
+      test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   # Web UI
   dagster-webserver:
     <<: *dagster-common
+    build:
+      context: .
+      target: dagster-infra
     container_name: dagster-webserver
-    entrypoint: []
-    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+    command:
+      ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "/app/dagster_home/workspace.yaml"]
     ports:
       - "3000:3000"
     depends_on:
       dagster-usercode:
-        condition: service_started
+        condition: service_healthy
 
   # Schedules, sensors and run queuing
   dagster-daemon:
     <<: *dagster-common
+    build:
+      context: .
+      target: dagster-infra
     container_name: dagster-daemon
-    entrypoint: []
-    command: ["dagster-daemon", "run"]
+    command: ["dagster-daemon", "run", "-w", "/app/dagster_home/workspace.yaml"]
     depends_on:
       dagster-usercode:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
   postgres-data:
