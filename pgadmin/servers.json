@@ -1,0 +1,13 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "data-platform",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "postgres",
+            "Username": "dagster",
+            "SSLMode": "prefer"
+        }
+    }
+}
