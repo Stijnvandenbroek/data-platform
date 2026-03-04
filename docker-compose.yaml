@@ -8,15 +8,12 @@ x-dagster: &dagster-common
   env_file: .env
   environment:
     DAGSTER_HOME: /app/dagster_home
-  volumes:
-    - dbt-target:/app/dbt/target
   depends_on:
     postgres:
       condition: service_healthy
   restart: unless-stopped
 
 services:
-
   # Metadata storage and dbt target
   postgres:
     image: postgres:16
@@ -37,19 +34,37 @@ services:
       timeout: 5s
       retries: 5
 
+  # User code gRPC server
+  dagster-usercode:
+    <<: *dagster-common
+    container_name: dagster-usercode
+    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "data_platform"]
+    volumes:
+      - dbt-target:/app/dbt/target
+    expose:
+      - "4000"
+
   # Web UI
   dagster-webserver:
     <<: *dagster-common
     container_name: dagster-webserver
+    entrypoint: []
     command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
     ports:
       - "3000:3000"
+    depends_on:
+      dagster-usercode:
+        condition: service_started
 
   # Schedules, sensors and run queuing
   dagster-daemon:
     <<: *dagster-common
     container_name: dagster-daemon
+    entrypoint: []
     command: ["dagster-daemon", "run"]
+    depends_on:
+      dagster-usercode:
+        condition: service_started
 
 volumes:
   postgres-data:

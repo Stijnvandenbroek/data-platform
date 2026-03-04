@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+.git
+.github
+.pytest_cache
+*.egg-info
+dbt/target
+dbt/logs
+dagster_home/storage
+dagster_home/logs

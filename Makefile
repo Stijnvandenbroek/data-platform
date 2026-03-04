@@ -1,5 +1,5 @@
 .PHONY: help install sync build up down restart logs ps \
-       build-code reload-code \
+       build-code reload-code reload-usercode \
        dbt-parse dbt-run dbt-test dbt-build dbt-seed dbt-clean dbt-deps dbt-docs \
        dagster-dev \
        lint lint-fix lint-python lint-sql lint-format \
@@ -11,7 +11,7 @@ COMPOSE  := docker compose
 DBT_DIR  := dbt
 DBT      := uv run dbt
 # Container(s) that carry user code
-CODE_SERVICES := dagster-webserver dagster-daemon
+CODE_SERVICES := dagster-usercode dagster-webserver dagster-daemon
 
 ## —— Help ——————————————————————————————————————————————————————
 help: ## Show this help
@@ -50,6 +50,10 @@ build-code: ## Rebuild only the user-code containers
 reload-code: ## Rebuild and restart the user-code containers (no downtime for postgres)
 	$(COMPOSE) build $(CODE_SERVICES)
 	$(COMPOSE) up -d --no-deps $(CODE_SERVICES)
+
+reload-usercode: ## Rebuild and restart only the gRPC usercode server
+	$(COMPOSE) build dagster-usercode
+	$(COMPOSE) up -d --no-deps --force-recreate dagster-usercode
 
 ## —— dbt (local, via uv) —————————————————————————————————————
 dbt-parse: ## Parse the dbt project and generate manifest.json
