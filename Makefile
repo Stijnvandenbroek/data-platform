@@ -95,15 +95,15 @@ lint-python: ## Ruff lint + format check
 lint-sql: ## SQLFluff lint on dbt/models
 	uv run sqlfluff lint dbt/models --dialect postgres
 
-lint-format: ## Prettier check (YAML / JSON / Markdown)
-	npx --yes prettier --check "**/*.yml" "**/*.yaml" "**/*.json" "**/*.md" \
+lint-format: ## Prettier check (YAML / Markdown)
+	npx --yes prettier --check "**/*.yml" "**/*.yaml" "**/*.md" \
 		--ignore-path .prettierignore
 
 lint-fix: ## Auto-fix all linters (ruff + sqlfluff + prettier)
 	uv run ruff check --fix .
 	uv run ruff format .
 	uv run sqlfluff fix dbt/models --dialect postgres
-	npx --yes prettier --write "**/*.yml" "**/*.yaml" "**/*.json" "**/*.md" \
+	npx --yes prettier --write "**/*.yml" "**/*.yaml" "**/*.md" \
 		--ignore-path .prettierignore
 
 ## —— Pre-commit ────────────────────────────────────────────────

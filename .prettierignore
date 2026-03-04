@@ -4,6 +4,7 @@ dbt/dbt_packages/
 .venv/
 dist/
 *.egg-info/
+.pytest_cache/
 
 # Dagster storage
 dagster_home/storage/

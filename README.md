@@ -1,17 +1,17 @@
 # data-platform
 
-A [Dagster](https://dagster.io/) + [dbt](https://www.getdbt.com/) data platform,
-managed with [uv](https://github.com/astral-sh/uv) and deployed via Docker Compose.
+A [Dagster](https://dagster.io/) + [dbt](https://www.getdbt.com/) data platform, managed with
+[uv](https://github.com/astral-sh/uv) and deployed via Docker Compose.
 
 ## Stack
 
-| Layer | Tool |
-|---|---|
-| Orchestration | Dagster (webserver + daemon) |
-| Transformation | dbt-core + dbt-postgres |
-| Storage | PostgreSQL 16 |
-| Package/venv | uv |
-| Secrets | `.env` file |
+| Layer          | Tool                         |
+| -------------- | ---------------------------- |
+| Orchestration  | Dagster (webserver + daemon) |
+| Transformation | dbt-core + dbt-postgres      |
+| Storage        | PostgreSQL 16                |
+| Package/venv   | uv                           |
+| Secrets        | `.env` file                  |
 
 ## Project layout
 

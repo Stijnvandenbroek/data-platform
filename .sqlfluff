@@ -3,7 +3,8 @@ templater = jinja
 dialect = postgres
 max_line_length = 100
 # Exclude generated/vendor paths
-exclude_rules = RF05  # don't require quoted identifiers
+# Don't require quoted identifiers
+exclude_rules = RF05
 output_line_length = 120
 
 [sqlfluff:templater:jinja]
