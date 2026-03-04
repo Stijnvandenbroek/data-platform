@@ -9,6 +9,7 @@ dependencies = [
     "dagster-dbt",
     "dbt-core",
     "dbt-postgres",
+    "pyfunda",
 ]
 
 [build-system]
@@ -22,8 +23,10 @@ packages = ["data_platform"]
 module_name = "data_platform"
 attribute = "defs"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest",
-    "dagster-webserver",
+    "ruff",
+    "sqlfluff",
+    "pre-commit",
 ]

@@ -9,9 +9,6 @@ __pycache__/
 dist/
 build/
 
-# uv
-uv.lock
-
 # dbt
 dbt/target/
 dbt/dbt_packages/
