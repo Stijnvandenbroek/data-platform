@@ -1,6 +1,6 @@
 """Tests for pure helper functions in data_platform.assets.helpers."""
 
-from data_platform.assets.helpers import (
+from data_platform.helpers import (
     format_area,
     format_euro,
     md_preview_table,

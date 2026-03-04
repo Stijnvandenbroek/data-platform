@@ -19,7 +19,7 @@ from dagster import (
 )
 from sqlalchemy import text
 
-from data_platform.assets.helpers import (
+from data_platform.helpers import (
     format_area,
     format_euro,
     md_preview_table,
