@@ -11,7 +11,7 @@ COMPOSE  := docker compose
 DBT_DIR  := dbt
 DBT      := uv run dbt
 # Container(s) that carry user code
-CODE_SERVICES := dagster-usercode dagster-webserver dagster-daemon
+CODE_SERVICES := dagster-usercode
 
 ## —— Help ——————————————————————————————————————————————————————
 help: ## Show this help
