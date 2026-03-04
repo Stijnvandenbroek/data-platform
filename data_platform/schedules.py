@@ -8,7 +8,7 @@ from dagster import (
     define_asset_job,
 )
 
-from data_platform.assets.funda import (
+from data_platform.assets.ingestion.funda.funda import (
     FundaDetailsConfig,
     FundaPriceHistoryConfig,
     FundaSearchConfig,

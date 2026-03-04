@@ -19,7 +19,7 @@ repos:
         entry: uv run sqlfluff lint --dialect postgres
         language: system
         types: [sql]
-        files: ^dbt/models/
+        files: ^(dbt/models/|data_platform/assets/ingestion/)
 
       - id: prettier
         name: prettier

@@ -505,6 +505,7 @@ dependencies = [
     { name = "dagster-webserver" },
     { name = "dbt-core" },
     { name = "dbt-postgres" },
+    { name = "jinja2" },
     { name = "pyfunda" },
 ]
 
@@ -524,6 +525,7 @@ requires-dist = [
     { name = "dagster-webserver" },
     { name = "dbt-core" },
     { name = "dbt-postgres" },
+    { name = "jinja2" },
     { name = "pyfunda" },
 ]
 

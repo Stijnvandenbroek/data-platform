@@ -92,8 +92,8 @@ lint-python: ## Ruff lint + format check
 	uv run ruff check .
 	uv run ruff format --check .
 
-lint-sql: ## SQLFluff lint on dbt/models
-	uv run sqlfluff lint dbt/models --dialect postgres
+lint-sql: ## SQLFluff lint on dbt/models and ingestion SQL
+	uv run sqlfluff lint dbt/models data_platform/assets/ingestion/funda/sql --dialect postgres
 
 lint-format: ## Prettier check (YAML / Markdown)
 	npx --yes prettier --check "**/*.yml" "**/*.yaml" "**/*.md" \
@@ -102,7 +102,7 @@ lint-format: ## Prettier check (YAML / Markdown)
 lint-fix: ## Auto-fix all linters (ruff + sqlfluff + prettier)
 	uv run ruff check --fix .
 	uv run ruff format .
-	uv run sqlfluff fix dbt/models --dialect postgres
+	uv run sqlfluff fix dbt/models data_platform/assets/ingestion/funda/sql --dialect postgres
 	npx --yes prettier --write "**/*.yml" "**/*.yaml" "**/*.md" \
 		--ignore-path .prettierignore
 

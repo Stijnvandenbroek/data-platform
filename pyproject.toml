@@ -10,6 +10,7 @@ dependencies = [
     "dbt-core",
     "dbt-postgres",
     "pyfunda",
+    "jinja2",
 ]
 
 [build-system]

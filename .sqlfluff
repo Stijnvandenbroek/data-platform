@@ -3,8 +3,8 @@ templater = jinja
 dialect = postgres
 max_line_length = 100
 # Exclude generated/vendor paths
-# Don't require quoted identifiers
-exclude_rules = RF05
+# Don't require quoted identifiers; allow type-name identifiers (date, timestamp, etc.)
+exclude_rules = RF04, RF05
 output_line_length = 120
 
 [sqlfluff:templater:jinja]
@@ -12,6 +12,9 @@ output_line_length = 120
 [sqlfluff:templater:jinja:macros]
 source = "{% macro source(source_name, table_name) %}{{ source_name }}.{{ table_name }}{% endmacro %}"
 ref = "{% macro ref(model_name) %}{{ model_name }}{% endmacro %}"
+
+[sqlfluff:templater:jinja:context]
+schema = raw_funda
 
 [sqlfluff:indentation]
 indent_unit = space

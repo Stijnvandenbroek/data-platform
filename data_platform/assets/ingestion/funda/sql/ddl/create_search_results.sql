@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS {{ schema }}.search_results (
+    global_id TEXT,
+    title TEXT,
+    city TEXT,
+    postcode TEXT,
+    province TEXT,
+    neighbourhood TEXT,
+    price BIGINT,
+    living_area INT,
+    plot_area INT,
+    bedrooms INT,
+    rooms INT,
+    energy_label TEXT,
+    object_type TEXT,
+    offering_type TEXT,
+    construction_type TEXT,
+    publish_date TEXT,
+    broker_id TEXT,
+    broker_name TEXT,
+    raw_json JSONB,
+    ingested_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE (global_id)
+);

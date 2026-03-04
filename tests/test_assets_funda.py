@@ -4,12 +4,12 @@ from unittest.mock import MagicMock
 
 from dagster import materialize
 
-from data_platform.assets.funda import (
-    FundaSearchConfig,
+from data_platform.assets.ingestion.funda import (
     funda_listing_details,
     funda_price_history,
     funda_search_results,
 )
+from data_platform.assets.ingestion.funda.funda import FundaSearchConfig
 from tests.conftest import make_mock_engine, make_mock_listing
 
 
