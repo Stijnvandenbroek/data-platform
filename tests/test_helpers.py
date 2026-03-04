@@ -114,7 +114,9 @@ class TestSearchPreviewTable:
         assert "–" in result
 
     def test_multiple_rows_correct_count(self):
-        rows = [{"title": f"St {i}", "city": "City", "price": i * 1000} for i in range(5)]
+        rows = [
+            {"title": f"St {i}", "city": "City", "price": i * 1000} for i in range(5)
+        ]
         result = _search_preview_table(rows)
         lines = result.split("\n")
         # header + separator + 5 data rows

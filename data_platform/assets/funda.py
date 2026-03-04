@@ -272,7 +272,9 @@ def funda_search_results(
     """
     postgres.execute_many(insert_sql, rows)
 
-    context.log.info(f"Inserted {len(rows)} search results into {_SCHEMA}.search_results")
+    context.log.info(
+        f"Inserted {len(rows)} search results into {_SCHEMA}.search_results"
+    )
 
     return MaterializeResult(
         metadata={
@@ -307,7 +309,9 @@ def funda_listing_details(
 
     # Read listing IDs from search results
     with engine.connect() as conn:
-        result = conn.execute(text(f"SELECT DISTINCT global_id FROM {_SCHEMA}.search_results"))
+        result = conn.execute(
+            text(f"SELECT DISTINCT global_id FROM {_SCHEMA}.search_results")
+        )
         ids = [row[0] for row in result if row[0]]
 
     if not ids:
@@ -436,11 +440,15 @@ def funda_price_history(
 
     # Read listings from details table
     with engine.connect() as conn:
-        result = conn.execute(text(f"SELECT DISTINCT global_id FROM {_SCHEMA}.listing_details"))
+        result = conn.execute(
+            text(f"SELECT DISTINCT global_id FROM {_SCHEMA}.listing_details")
+        )
         ids = [row[0] for row in result if row[0]]
 
     if not ids:
-        context.log.warning("No listing details found – run funda_listing_details first.")
+        context.log.warning(
+            "No listing details found – run funda_listing_details first."
+        )
         return MaterializeResult(metadata={"count": 0})
 
     context.log.info(f"Fetching price history for {len(ids)} listings …")
@@ -505,7 +513,10 @@ def funda_price_history(
 
 def _search_preview_table(rows: list[dict]) -> str:
     """Build a markdown table for search result metadata preview."""
-    lines = ["| Title | City | Price | Area | Bedrooms |", "| --- | --- | --- | --- | --- |"]
+    lines = [
+        "| Title | City | Price | Area | Bedrooms |",
+        "| --- | --- | --- | --- | --- |",
+    ]
     for r in rows:
         price = f"€{r['price']:,}" if r.get("price") else "–"
         area = f"{r['living_area']} m²" if r.get("living_area") else "–"

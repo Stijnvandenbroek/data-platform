@@ -111,7 +111,11 @@ class TestFundaSearchResults:
                 "postgres": MockPostgresResource(engine, rows),
             },
             run_config={
-                "ops": {"funda_search_results": {"config": {"max_pages": 1, **(config or {})}}}
+                "ops": {
+                    "funda_search_results": {
+                        "config": {"max_pages": 1, **(config or {})}
+                    }
+                }
             },
         )
         return result
@@ -188,7 +192,10 @@ class TestFundaSearchResults:
         client = MagicMock()
         client.search_listing.return_value = []
         self._run(client, config={"object_type": "house, apartment"})
-        assert client.search_listing.call_args[1]["object_type"] == ["house", "apartment"]
+        assert client.search_listing.call_args[1]["object_type"] == [
+            "house",
+            "apartment",
+        ]
 
     def test_energy_label_split_by_comma(self):
         client = MagicMock()
