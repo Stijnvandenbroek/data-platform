@@ -1,29 +1,89 @@
 # data-platform
 
-A [Dagster](https://dagster.io/) + [dbt](https://www.getdbt.com/) data platform, managed with
-[uv](https://github.com/astral-sh/uv) and deployed via Docker Compose.
+A personal data platform for ingesting, transforming and analysing external data sources. Built with
+[Dagster](https://dagster.io/), [dbt](https://www.getdbt.com/) and
+[PostgreSQL](https://www.postgresql.org/), managed with [uv](https://github.com/astral-sh/uv) and
+deployed via Docker Compose.
 
 ## Stack
 
-| Layer          | Tool                         |
-| -------------- | ---------------------------- |
-| Orchestration  | Dagster (webserver + daemon) |
-| Transformation | dbt-core + dbt-postgres      |
-| Storage        | PostgreSQL 16                |
-| Package/venv   | uv                           |
-| Secrets        | `.env` file                  |
+| Layer          | Tool                                              |
+| -------------- | ------------------------------------------------- |
+| Orchestration  | Dagster (webserver + daemon)                      |
+| Transformation | dbt-core + dbt-postgres                           |
+| Storage        | PostgreSQL 16                                     |
+| Observability  | Elementary (report served via nginx)              |
+| CI             | GitHub Actions (Ruff, SQLFluff, Prettier, pytest) |
+| Package / venv | uv                                                |
+| Infrastructure | Docker Compose                                    |
+
+## Data pipeline
+
+### Ingestion
+
+Python-based Dagster assets fetch data from external APIs and load it into a raw PostgreSQL schema
+using upsert semantics. Assets are prefixed with `raw_` to clearly separate unmodelled data from
+transformed outputs. They are chained via explicit dependencies and run on a recurring cron
+schedule.
+
+### Transformation
+
+dbt models follow the **staging → intermediate → marts** layering pattern:
+
+| Layer            | Materialisation | Purpose                                                          |
+| ---------------- | --------------- | ---------------------------------------------------------------- |
+| **Staging**      | view            | 1:1 cleaning of each raw table with enforced contracts           |
+| **Intermediate** | view            | Business-logic joins and enrichment across staging models        |
+| **Marts**        | incremental     | Analysis-ready tables with derived metrics, loaded incrementally |
+
+Mart models use dbt's **incremental materialisation** — on each run only rows with a newer ingestion
+timestamp are merged into the target table. On a full-refresh the entire table is rebuilt.
+
+All staging and intermediate models have **dbt contracts enforced**, locking column names and data
+types to prevent silent schema drift.
+
+### Data quality
+
+- **dbt tests**: uniqueness, not-null, accepted values, referential integrity and expression-based
+  tests run as part of every `dbt build`.
+- **Source freshness**: a scheduled job verifies raw tables haven't gone stale.
+- **Elementary**: collects test results and generates an HTML observability report served via nginx.
+
+## Scheduling & automation
+
+Ingestion assets run on cron schedules managed by the Dagster daemon. Downstream dbt models use
+**eager auto-materialisation**: whenever an upstream raw asset completes, Dagster automatically
+triggers the dbt build for all dependent staging, intermediate and mart models.
+
+Assets tagged `"manual"` are excluded from auto-materialisation and only run when triggered
+explicitly. A guard condition (`~any_deps_in_progress`) prevents duplicate runs while upstream
+assets are still materialising.
 
 ## Project layout
 
 ```
-data_platform/      # Dagster Python package (assets, definitions)
-dbt/                # dbt project (models, seeds, tests)
-  profiles.yml      # reads credentials from env vars
-dagster_home/       # dagster.yaml + workspace.yaml
-Dockerfile          # single image used by both dagster services
-docker-compose.yaml # postgres + dagster-webserver + dagster-daemon
-.env.example        # copy to .env and fill in credentials
-pyproject.toml      # uv-managed dependencies
+data_platform/              # Dagster Python package
+  assets/
+    dbt.py                  # @dbt_assets definition
+    ingestion/              # Raw ingestion assets + SQL templates
+  helpers/                  # Shared utilities (SQL rendering, formatting, automation)
+  jobs/                     # Job definitions
+  schedules/                # Schedule definitions
+  resources/                # Dagster resources (API clients, Postgres)
+  definitions.py            # Main Definitions entry point
+dbt/                        # dbt project
+  models/
+    staging/                # 1:1 views on raw tables + source definitions
+    intermediate/           # Enrichment joins
+    marts/                  # Incremental analysis-ready tables
+  macros/                   # Custom schema generation, Elementary compat
+  profiles.yml              # Reads credentials from env vars
+dagster_home/               # dagster.yaml + workspace.yaml
+tests/                      # pytest test suite
+nginx/                      # Elementary report nginx config
+docker-compose.yaml         # All services
+Dockerfile                  # Multi-stage: usercode + dagster-infra
+Makefile                    # Developer shortcuts
 ```
 
 ## Getting started
@@ -36,14 +96,14 @@ curl -Lsf https://astral.sh/uv/install.sh | sh
 cd ~/git/data-platform
 
 # 3. Create your credentials file
-cp .env.example .env
-# Edit .env with your passwords
+cp .env.example .env        # edit .env with your passwords
 
 # 4. Install dependencies into a local venv
 uv sync
 
 # 5. Generate the dbt manifest (needed before first run)
-uv run dbt parse --profiles-dir dbt --project-dir dbt
+uv run dbt deps  --project-dir dbt --profiles-dir dbt
+uv run dbt parse --project-dir dbt --profiles-dir dbt
 
 # 6. Start all services
 docker compose up -d --build
@@ -52,7 +112,7 @@ docker compose up -d --build
 #    http://localhost:3000
 ```
 
-## Local development (without Docker)
+## Local development
 
 ```bash
 uv sync
@@ -60,4 +120,19 @@ source .venv/bin/activate
 
 # Run the Dagster UI locally
 DAGSTER_HOME=$PWD/dagster_home dagster dev
+
+# Useful Make targets
+make validate          # Check Dagster definitions load
+make lint              # Ruff + SQLFluff + Prettier
+make lint-fix          # Auto-fix all linters
+make test              # pytest
+make reload-code       # Rebuild + restart user-code container
 ```
+
+## Services
+
+| Service           | URL                   |
+| ----------------- | --------------------- |
+| Dagster UI        | http://localhost:3000 |
+| pgAdmin           | http://localhost:5050 |
+| Elementary report | http://localhost:8080 |
