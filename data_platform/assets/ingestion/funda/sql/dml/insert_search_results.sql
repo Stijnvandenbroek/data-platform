@@ -1,16 +1,16 @@
-INSERT INTO {{ schema }}.search_results (
+insert into {{ schema }}.search_results (
     global_id, title, city, postcode, province, neighbourhood,
     price, living_area, plot_area, bedrooms, rooms, energy_label,
     object_type, offering_type, construction_type, publish_date,
     broker_id, broker_name, raw_json
 )
-VALUES (
+values (
     :global_id, :title, :city, :postcode, :province, :neighbourhood,
     :price, :living_area, :plot_area, :bedrooms, :rooms, :energy_label,
     :object_type, :offering_type, :construction_type, :publish_date,
     :broker_id, :broker_name, :raw_json
 )
-ON CONFLICT (global_id) DO UPDATE SET
+on conflict (global_id) do update set
     title = excluded.title,
     city = excluded.city,
     postcode = excluded.postcode,
@@ -31,4 +31,4 @@ ON CONFLICT (global_id) DO UPDATE SET
     raw_json = excluded.raw_json,
     ingested_at = now(),
     last_seen_at = now(),
-    is_active = TRUE
+    is_active = true

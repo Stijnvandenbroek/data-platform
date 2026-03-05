@@ -1,4 +1,4 @@
-INSERT INTO {{ schema }}.listing_details (
+insert into {{ schema }}.listing_details (
     global_id, tiny_id, title, city, postcode, province,
     neighbourhood, municipality, price, price_formatted,
     status, offering_type, object_type, house_type,
@@ -9,7 +9,7 @@ INSERT INTO {{ schema }}.listing_details (
     has_roof_terrace, is_energy_efficient, is_monument,
     url, photo_count, views, saves, raw_json
 )
-VALUES (
+values (
     :global_id, :tiny_id, :title, :city, :postcode, :province,
     :neighbourhood, :municipality, :price, :price_formatted,
     :status, :offering_type, :object_type, :house_type,
@@ -20,7 +20,7 @@ VALUES (
     :has_roof_terrace, :is_energy_efficient, :is_monument,
     :url, :photo_count, :views, :saves, :raw_json
 )
-ON CONFLICT (global_id, status) DO UPDATE SET
+on conflict (global_id, status) do update set
     tiny_id = excluded.tiny_id,
     title = excluded.title,
     city = excluded.city,
@@ -58,4 +58,4 @@ ON CONFLICT (global_id, status) DO UPDATE SET
     raw_json = excluded.raw_json,
     ingested_at = now(),
     last_fetched_at = now(),
-    is_stale = FALSE
+    is_stale = false

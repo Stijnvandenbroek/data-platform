@@ -1,10 +1,10 @@
-INSERT INTO {{ schema }}.price_history (
+insert into {{ schema }}.price_history (
     global_id, price, human_price, date, timestamp, source, status
 )
-VALUES (
+values (
     :global_id, :price, :human_price, :date, :timestamp, :source, :status
 )
-ON CONFLICT (global_id, date, source, status) DO UPDATE SET
+on conflict (global_id, date, source, status) do update set
     price = excluded.price,
     human_price = excluded.human_price,
     timestamp = excluded.timestamp,

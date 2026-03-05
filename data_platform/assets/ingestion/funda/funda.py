@@ -113,13 +113,6 @@ def funda_search_results(
         conn.execute(
             text(render_sql(_SQL_DIR, "ddl/create_search_results.sql", schema=_SCHEMA))
         )
-        conn.execute(
-            text(
-                render_sql(
-                    _SQL_DIR, "ddl/migrate_search_constraint.sql", schema=_SCHEMA
-                )
-            )
-        )
 
     rows = []
     for listing in all_listings:
@@ -212,13 +205,6 @@ def funda_listing_details(
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {_SCHEMA}"))
         conn.execute(
             text(render_sql(_SQL_DIR, "ddl/create_listing_details.sql", schema=_SCHEMA))
-        )
-        conn.execute(
-            text(
-                render_sql(
-                    _SQL_DIR, "ddl/migrate_details_constraint.sql", schema=_SCHEMA
-                )
-            )
         )
 
     with engine.connect() as conn:
@@ -362,13 +348,6 @@ def funda_price_history(
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {_SCHEMA}"))
         conn.execute(
             text(render_sql(_SQL_DIR, "ddl/create_price_history.sql", schema=_SCHEMA))
-        )
-        conn.execute(
-            text(
-                render_sql(
-                    _SQL_DIR, "ddl/migrate_price_history_constraint.sql", schema=_SCHEMA
-                )
-            )
         )
 
     with engine.connect() as conn:
