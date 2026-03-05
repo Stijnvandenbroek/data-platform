@@ -28,7 +28,7 @@ _SCHEMA = "raw_funda"
 class FundaSearchConfig(Config):
     """Search parameters for Funda."""
 
-    location: str = "woerden, utrecht, zeist, maarssen, nieuwegein, gouda"
+    location: str = "woerden"
     offering_type: str = "buy"
     price_min: int | None = 300000
     price_max: int | None = 500000
@@ -38,9 +38,9 @@ class FundaSearchConfig(Config):
     plot_max: int | None = None
     object_type: str | None = None
     energy_label: str | None = None
-    radius_km: int | None = None
+    radius_km: int | None = 50
     sort: str = "newest"
-    max_pages: int = 3
+    max_pages: int = 10
 
 
 class FundaDetailsConfig(Config):
