@@ -7,6 +7,7 @@ from data_platform.assets.ingestion.funda import (
     funda_price_history,
     funda_search_results,
 )
+from data_platform.helpers import apply_automation
 from data_platform.jobs import (
     elementary_refresh_job,
     funda_ingestion_job,
@@ -20,12 +21,14 @@ from data_platform.schedules import (
 )
 
 defs = Definitions(
-    assets=[
-        dbt_project_assets,
-        funda_search_results,
-        funda_listing_details,
-        funda_price_history,
-    ],
+    assets=apply_automation(
+        [
+            dbt_project_assets,
+            funda_search_results,
+            funda_listing_details,
+            funda_price_history,
+        ]
+    ),
     jobs=[funda_ingestion_job, funda_raw_quality_job, elementary_refresh_job],
     schedules=[
         funda_ingestion_schedule,
