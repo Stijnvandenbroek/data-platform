@@ -60,7 +60,7 @@ class FundaPriceHistoryConfig(Config):
     kinds={"python", "postgres"},
     description="Search Funda listings and store results in Postgres.",
 )
-def funda_search_results(
+def raw_funda_search_results(
     context: AssetExecutionContext,
     config: FundaSearchConfig,
     funda: FundaResource,
@@ -189,10 +189,10 @@ def funda_search_results(
 @asset(
     group_name="funda",
     kinds={"python", "postgres"},
-    deps=[funda_search_results],
+    deps=[raw_funda_search_results],
     description="Fetch full listing details for each search result and store in Postgres.",
 )
-def funda_listing_details(
+def raw_funda_listing_details(
     context: AssetExecutionContext,
     config: FundaDetailsConfig,
     funda: FundaResource,
@@ -332,10 +332,10 @@ def funda_listing_details(
 @asset(
     group_name="funda",
     kinds={"python", "postgres"},
-    deps=[funda_listing_details],
+    deps=[raw_funda_listing_details],
     description="Fetch price history for each detailed listing and store in Postgres.",
 )
-def funda_price_history(
+def raw_funda_price_history(
     context: AssetExecutionContext,
     config: FundaPriceHistoryConfig,
     funda: FundaResource,

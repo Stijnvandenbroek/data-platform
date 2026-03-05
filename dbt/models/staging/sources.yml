@@ -10,7 +10,7 @@ sources:
         description: Funda search results (broad overview of matching listings).
         meta:
           dagster:
-            asset_key: ["funda_search_results"]
+            asset_key: ["raw_funda_search_results"]
         loaded_at_field: last_seen_at
         freshness:
           warn_after: { count: 12, period: hour }
@@ -51,7 +51,7 @@ sources:
           Full listing details fetched per search result (50+ fields).
         meta:
           dagster:
-            asset_key: ["funda_listing_details"]
+            asset_key: ["raw_funda_listing_details"]
         loaded_at_field: last_fetched_at
         freshness:
           warn_after: { count: 25, period: hour }
@@ -96,7 +96,7 @@ sources:
           Historical price data per listing (asking prices, WOZ, sales).
         meta:
           dagster:
-            asset_key: ["funda_price_history"]
+            asset_key: ["raw_funda_price_history"]
         loaded_at_field: ingested_at
         freshness:
           warn_after: { count: 25, period: hour }

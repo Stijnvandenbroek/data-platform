@@ -10,9 +10,9 @@ from data_platform.ops.check_source_freshness import (
 funda_ingestion_job = define_asset_job(
     name="funda_ingestion",
     selection=AssetSelection.assets(
-        "funda_search_results",
-        "funda_listing_details",
-        "funda_price_history",
+        "raw_funda_search_results",
+        "raw_funda_listing_details",
+        "raw_funda_price_history",
     ),
     description="Full Funda ingestion pipeline.",
 )

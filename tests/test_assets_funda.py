@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 from dagster import materialize
 
 from data_platform.assets.ingestion.funda import (
-    funda_listing_details,
-    funda_price_history,
-    funda_search_results,
+    raw_funda_listing_details,
+    raw_funda_price_history,
+    raw_funda_search_results,
 )
 from data_platform.assets.ingestion.funda.funda import FundaSearchConfig
 from tests.conftest import make_mock_engine, make_mock_listing
@@ -92,14 +92,14 @@ class TestFundaSearchResults:
         engine, _, _ = make_mock_engine()
         rows = inserted_rows if inserted_rows is not None else []
         result = materialize(
-            [funda_search_results],
+            [raw_funda_search_results],
             resources={
                 "funda": MockFundaResource(mock_client),
                 "postgres": MockPostgresResource(engine, rows),
             },
             run_config={
                 "ops": {
-                    "funda_search_results": {
+                    "raw_funda_search_results": {
                         "config": {"max_pages": 1, **(config or {})}
                     }
                 }
@@ -112,7 +112,7 @@ class TestFundaSearchResults:
         client.search_listing.return_value = []
         result = self._run(client)
         assert result.success
-        mat = result.asset_materializations_for_node("funda_search_results")
+        mat = result.asset_materializations_for_node("raw_funda_search_results")
         assert mat[0].metadata["count"].value == 0
 
     def test_results_are_inserted(self):
@@ -133,12 +133,14 @@ class TestFundaSearchResults:
         ]
         inserted = []
         result = materialize(
-            [funda_search_results],
+            [raw_funda_search_results],
             resources={
                 "funda": MockFundaResource(client),
                 "postgres": MockPostgresResource(make_mock_engine()[0], inserted),
             },
-            run_config={"ops": {"funda_search_results": {"config": {"max_pages": 3}}}},
+            run_config={
+                "ops": {"raw_funda_search_results": {"config": {"max_pages": 3}}}
+            },
         )
         assert result.success
         assert client.search_listing.call_count == 2
@@ -195,7 +197,7 @@ class TestFundaListingDetails:
     def _run(self, mock_client, engine, inserted_rows=None):
         rows = inserted_rows if inserted_rows is not None else []
         return materialize(
-            [funda_listing_details],
+            [raw_funda_listing_details],
             resources={
                 "funda": MockFundaResource(mock_client),
                 "postgres": MockPostgresResource(engine, rows),
@@ -207,7 +209,7 @@ class TestFundaListingDetails:
         client = MagicMock()
         result = self._run(client, engine)
         assert result.success
-        mat = result.asset_materializations_for_node("funda_listing_details")
+        mat = result.asset_materializations_for_node("raw_funda_listing_details")
         assert mat[0].metadata["count"].value == 0
 
     def test_details_fetched_and_inserted(self):
@@ -233,7 +235,7 @@ class TestFundaListingDetails:
         inserted = []
         result = self._run(client, engine, inserted)
         assert result.success
-        mat = result.asset_materializations_for_node("funda_listing_details")
+        mat = result.asset_materializations_for_node("raw_funda_listing_details")
         assert mat[0].metadata["errors"].value == 1
         assert len(inserted) == 1
 
@@ -242,7 +244,7 @@ class TestFundaPriceHistory:
     def _run(self, mock_client, engine, inserted_rows=None):
         rows = inserted_rows if inserted_rows is not None else []
         return materialize(
-            [funda_price_history],
+            [raw_funda_price_history],
             resources={
                 "funda": MockFundaResource(mock_client),
                 "postgres": MockPostgresResource(engine, rows),
@@ -254,7 +256,7 @@ class TestFundaPriceHistory:
         client = MagicMock()
         result = self._run(client, engine)
         assert result.success
-        mat = result.asset_materializations_for_node("funda_price_history")
+        mat = result.asset_materializations_for_node("raw_funda_price_history")
         assert mat[0].metadata["count"].value == 0
 
     def test_price_history_inserted(self):
@@ -285,17 +287,17 @@ class TestFundaPriceHistory:
         assert len(inserted) == 2
         assert inserted[0]["source"] == "Funda"
         assert inserted[1]["source"] == "WOZ"
-        mat = result.asset_materializations_for_node("funda_price_history")
+        mat = result.asset_materializations_for_node("raw_funda_price_history")
         assert mat[0].metadata["count"].value == 2
 
 
 class TestFundaSearchConfig:
     def test_defaults(self):
         cfg = FundaSearchConfig()
-        assert cfg.location == "woerden, utrecht, zeist, maarssen, nieuwegein, gouda"
+        assert cfg.location == "woerden"
         assert cfg.offering_type == "buy"
         assert cfg.sort == "newest"
-        assert cfg.max_pages == 3
+        assert cfg.max_pages == 10
         assert cfg.price_min == 300000
         assert cfg.price_max == 500000
 

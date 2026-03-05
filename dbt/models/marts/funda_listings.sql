@@ -1,8 +1,20 @@
 -- Mart: analysis-ready Funda listings table.
--- Selects the most useful fields and adds derived metrics.
+-- Incrementally loads enriched listings, updating existing rows on re-ingestion.
+
+{{
+    config(
+        materialized='incremental',
+        unique_key='global_id',
+        on_schema_change='fail'
+    )
+}}
 
 with enriched as (
-    select * from {{ ref('int_funda_listings_enriched') }}
+    select *
+    from {{ ref('int_funda_listings_enriched') }}
+    {% if is_incremental() %}
+        where ingested_at > (select max(ingested_at) from {{ this }})  -- noqa: RF02
+    {% endif %}
 ),
 
 final as (

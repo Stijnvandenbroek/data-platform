@@ -15,9 +15,9 @@ funda_ingestion_schedule = ScheduleDefinition(
     cron_schedule="0 */4 * * *",
     run_config=RunConfig(
         ops={
-            "funda_search_results": FundaSearchConfig(),
-            "funda_listing_details": FundaDetailsConfig(),
-            "funda_price_history": FundaPriceHistoryConfig(),
+            "raw_funda_search_results": FundaSearchConfig(),
+            "raw_funda_listing_details": FundaDetailsConfig(),
+            "raw_funda_price_history": FundaPriceHistoryConfig(),
         }
     ),
     default_status=DefaultScheduleStatus.RUNNING,

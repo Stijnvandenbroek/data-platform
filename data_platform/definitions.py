@@ -3,9 +3,9 @@ from dagster_dbt import DbtCliResource
 
 from data_platform.assets.dbt import DBT_PROJECT_DIR, dbt_project_assets
 from data_platform.assets.ingestion.funda import (
-    funda_listing_details,
-    funda_price_history,
-    funda_search_results,
+    raw_funda_listing_details,
+    raw_funda_price_history,
+    raw_funda_search_results,
 )
 from data_platform.helpers import apply_automation
 from data_platform.jobs import (
@@ -24,9 +24,9 @@ defs = Definitions(
     assets=apply_automation(
         [
             dbt_project_assets,
-            funda_search_results,
-            funda_listing_details,
-            funda_price_history,
+            raw_funda_search_results,
+            raw_funda_listing_details,
+            raw_funda_price_history,
         ]
     ),
     jobs=[funda_ingestion_job, funda_raw_quality_job, elementary_refresh_job],
