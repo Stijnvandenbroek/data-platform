@@ -5,6 +5,9 @@ WORKDIR /app
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
+# Install system dependencies (git is required by elementary/dbt deps)
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
 # Install dependencies before copying full source (layer caching)
 COPY pyproject.toml uv.lock* ./
 RUN uv sync --frozen --no-dev 2>/dev/null || uv sync --no-dev

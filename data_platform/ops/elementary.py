@@ -57,6 +57,9 @@ def elementary_run_models(context: OpExecutionContext) -> None:
         raise Exception(f"dbt run elementary failed with exit code {result.returncode}")
 
 
+_EDR_REPORT_PATH = _DBT_DIR / "edr_target" / "elementary_report.html"
+
+
 @op(ins={"after": In(Nothing)})
 def elementary_generate_report(context: OpExecutionContext) -> None:
     """Run edr report to regenerate the Elementary HTML report."""
@@ -67,7 +70,8 @@ def elementary_generate_report(context: OpExecutionContext) -> None:
         str(_DBT_DIR),
         "--project-dir",
         str(_DBT_DIR),
-        "--disable-open-browser",
+        "--file-path",
+        str(_EDR_REPORT_PATH),
     ]
     context.log.info(f"Running: {' '.join(cmd)}")
     result = subprocess.run(cmd, capture_output=True, text=True)
