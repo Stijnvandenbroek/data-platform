@@ -3,6 +3,7 @@
 from dagster import ConfigurableResource, EnvVar
 from funda import Funda
 from sqlalchemy import create_engine, text
+from sqlalchemy.pool import NullPool
 
 
 class FundaResource(ConfigurableResource):
@@ -25,7 +26,7 @@ class PostgresResource(ConfigurableResource):
 
     def get_engine(self):
         url = f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbname}"
-        return create_engine(url)
+        return create_engine(url, poolclass=NullPool)
 
     def execute(self, statement: str, params: dict | None = None):
         engine = self.get_engine()

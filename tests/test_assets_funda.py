@@ -260,9 +260,17 @@ class TestFundaPriceHistory:
         assert mat[0].metadata["count"].value == 0
 
     def test_price_history_inserted(self):
-        engine, _, _ = make_mock_engine(select_rows=[("1234567",)])
+        engine, _, _ = make_mock_engine(
+            select_rows=[
+                (
+                    "1234567",
+                    "https://www.funda.nl/detail/koop/amsterdam/app/87654321/",
+                    "Teststraat 1",
+                    "1234AB",
+                ),
+            ]
+        )
         client = MagicMock()
-        client.get_listing.return_value = make_mock_listing(_DETAIL_LISTING_DATA)
         client.get_price_history.return_value = [
             {
                 "price": 350000,

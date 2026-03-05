@@ -4,3 +4,12 @@ storage:
   postgres:
     postgres_url:
       env: DAGSTER_POSTGRES_URL
+    pool_size: 5
+    max_overflow: 5
+
+# Limit concurrent runs to avoid overwhelming the VM and database.
+concurrency:
+  default_op_concurrency_limit: 1
+
+run_queue:
+  max_concurrent_runs: 1

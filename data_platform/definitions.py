@@ -1,4 +1,8 @@
-from dagster import Definitions
+from dagster import (
+    AutomationConditionSensorDefinition,
+    DefaultSensorStatus,
+    Definitions,
+)
 from dagster_dbt import DbtCliResource
 
 from data_platform.assets.dbt import DBT_PROJECT_DIR, dbt_project_assets
@@ -30,6 +34,13 @@ defs = Definitions(
         ]
     ),
     jobs=[funda_ingestion_job, funda_raw_quality_job, elementary_refresh_job],
+    sensors=[
+        AutomationConditionSensorDefinition(
+            name="automation_condition_sensor",
+            target="*",
+            default_status=DefaultSensorStatus.RUNNING,
+        ),
+    ],
     schedules=[
         funda_ingestion_schedule,
         funda_raw_quality_schedule,
