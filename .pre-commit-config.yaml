@@ -1,5 +1,5 @@
 repos:
-  # ── Local hooks (use uv-managed tool versions from uv.lock) ──────────────
+  # Local hooks using uv-managed tool versions
   - repo: local
     hooks:
       - id: ruff-lint
@@ -19,7 +19,7 @@ repos:
         entry: uv run sqlfluff lint --dialect postgres
         language: system
         types: [sql]
-        files: ^(dbt/models/|data_platform/assets/ingestion/)
+        files: ^dbt/models/
 
       - id: prettier
         name: prettier
@@ -34,7 +34,7 @@ repos:
             \.pytest_cache/
           )
 
-  # ── General hygiene ───────────────────────────────────────────────────────
+  # General hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:

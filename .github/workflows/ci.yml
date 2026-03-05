@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  # ── Lint ────────────────────────────────────────────────────────────────
+  # Lint
   lint-python:
     name: Ruff (lint + format)
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
             "**/*.yml" "**/*.yaml" "**/*.md" \
             --ignore-path .prettierignore
 
-  # ── Tests ────────────────────────────────────────────────────────────────
+  # Tests
   test:
     name: Pytest
     runs-on: ubuntu-latest

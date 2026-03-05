@@ -13,18 +13,18 @@ DBT      := uv run dbt
 # Container(s) that carry user code
 CODE_SERVICES := dagster-usercode
 
-## —— Help ——————————————————————————————————————————————————————
+## Help
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
-## —— Python / uv ——————————————————————————————————————————————
+## Python / uv
 install: ## Install all dependencies (including dev) with uv
 	uv sync
 
 sync: install ## Alias for install
 
-## —— Docker Compose ———————————————————————————————————————————
+## Docker Compose
 build: ## Build all Docker images
 	$(COMPOSE) build
 
@@ -43,7 +43,7 @@ logs: ## Tail logs for all services (ctrl-c to quit)
 ps: ## Show running containers
 	$(COMPOSE) ps
 
-## —— User-code container shortcuts ————————————————————————————
+## User-code container shortcuts
 build-code: ## Rebuild only the user-code containers
 	$(COMPOSE) build $(CODE_SERVICES)
 
@@ -55,7 +55,7 @@ reload-usercode: ## Rebuild and restart only the gRPC usercode server
 	$(COMPOSE) build dagster-usercode
 	$(COMPOSE) up -d --no-deps --force-recreate dagster-usercode
 
-## —— dbt (local, via uv) —————————————————————————————————————
+## dbt (local, via uv)
 dbt-parse: ## Parse the dbt project and generate manifest.json
 	$(DBT) parse --project-dir $(DBT_DIR) --profiles-dir $(DBT_DIR)
 
@@ -81,11 +81,11 @@ dbt-docs: ## Generate and serve dbt docs
 	$(DBT) docs generate --project-dir $(DBT_DIR) --profiles-dir $(DBT_DIR)
 	$(DBT) docs serve --project-dir $(DBT_DIR) --profiles-dir $(DBT_DIR)
 
-## —— Dagster (local dev) —————————————————————————————————————
+## Dagster (local dev)
 dagster-dev: ## Start Dagster webserver locally for development
 	uv run dagster dev
 
-## —— Quality ──────────────────────────────────────────────────
+## Quality
 lint: lint-python lint-sql lint-format ## Run all linters (ruff + sqlfluff + prettier)
 
 lint-python: ## Ruff lint + format check
@@ -106,7 +106,7 @@ lint-fix: ## Auto-fix all linters (ruff + sqlfluff + prettier)
 	npx --yes prettier --write "**/*.yml" "**/*.yaml" "**/*.md" \
 		--ignore-path .prettierignore
 
-## —— Pre-commit ────────────────────────────────────────────────
+## Pre-commit
 pre-commit-install: ## Install pre-commit hooks into .git/hooks
 	uv run pre-commit install
 
@@ -119,7 +119,7 @@ validate: ## Validate Dagster definitions load without errors
 test: ## Run pytest
 	uv run pytest
 
-## —— Misc —————————————————————————————————————————————————————
+## Misc
 clean: ## Remove Python caches and build artefacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	rm -rf .pytest_cache dist *.egg-info
