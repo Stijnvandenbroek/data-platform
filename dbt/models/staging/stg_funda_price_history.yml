@@ -48,7 +48,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["funda", "woz", "cadastre"]
+              values: ["Funda", "WOZ"]
       - name: price_status
         description: Type of price event.
         data_type: text

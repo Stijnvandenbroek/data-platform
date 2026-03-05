@@ -89,7 +89,7 @@ models:
         data_type: text
         tests:
           - accepted_values:
-              values: ["A+++", "A++", "A+", "A", "B", "C", "D", "E", "F", "G"]
+              values: ["A3", "A2", "A1", "A", "B", "C", "D", "E", "F", "G"]
               where: "energy_label is not null"
       - name: living_area
         description: Interior floor area in m².

@@ -120,7 +120,7 @@ sources:
             tests:
               - not_null
               - accepted_values:
-                  values: ["funda", "woz", "cadastre"]
+                  values: ["Funda", "WOZ"]
           - name: status
             description: Price event type (asking_price, sold, or woz).
             tests:
