@@ -14,12 +14,19 @@ repos:
         language: system
         types: [python]
 
+      - id: sqlfluff-fix
+        name: sqlfluff fix
+        entry: uv run sqlfluff fix --force --dialect postgres
+        language: system
+        types: [sql]
+        exclude: ^(dbt/target/|dbt/dbt_packages/)
+
       - id: sqlfluff-lint
         name: sqlfluff lint
         entry: uv run sqlfluff lint --dialect postgres
         language: system
         types: [sql]
-        files: ^(dbt/models/|data_platform/assets/ingestion/)
+        exclude: ^(dbt/target/|dbt/dbt_packages/)
 
       - id: prettier
         name: prettier

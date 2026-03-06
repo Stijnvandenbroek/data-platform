@@ -43,9 +43,7 @@ jobs:
         run: uv sync
 
       - name: SQLFluff lint
-        run:
-          uv run sqlfluff lint dbt/models data_platform/assets/ingestion/funda/sql --dialect
-          postgres
+        run: uv run sqlfluff lint dbt/models data_platform/ --dialect postgres
 
   lint-yaml-json-md:
     name: Prettier (YAML / JSON / Markdown)
