@@ -6,6 +6,7 @@ from dagster import (
 from dagster_dbt import DbtCliResource
 
 from data_platform.assets.dbt import DBT_PROJECT_DIR, dbt_project_assets
+from data_platform.assets.elo import elo_comparisons, elo_ratings
 from data_platform.assets.ingestion.funda import (
     raw_funda_listing_details,
     raw_funda_price_history,
@@ -31,6 +32,8 @@ defs = Definitions(
             raw_funda_search_results,
             raw_funda_listing_details,
             raw_funda_price_history,
+            elo_ratings,
+            elo_comparisons,
         ]
     ),
     jobs=[funda_ingestion_job, funda_raw_quality_job, elementary_refresh_job],

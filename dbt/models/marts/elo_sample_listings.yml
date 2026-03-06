@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: elo_sample_listings
+    description: >
+      Stable random sample of Funda listings used for pairwise ELO comparison in the
+      house-elo-ranking application. Maintains up to 50 listings, topped up incrementally using
+      deterministic md5-based ordering.
+    config:
+      materialized: incremental
+      unique_key: global_id
+      on_schema_change: fail
+      schema: elo
+      contract:
+        enforced: true
+    meta:
+      dagster:
+        group: elo
+    columns:
+      - name: global_id
+        description: Funda internal listing ID, referencing funda_listings.
+        data_type: text
+        constraints:
+          - type: not_null
+          - type: unique
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('funda_listings')
+              field: global_id
