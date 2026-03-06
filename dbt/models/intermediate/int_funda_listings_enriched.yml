@@ -18,7 +18,7 @@ models:
         constraints:
           - type: not_null
           - type: unique
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: tiny_id
@@ -30,7 +30,7 @@ models:
       - name: city
         description: City name.
         data_type: text
-        tests:
+        data_tests:
           - not_null
       - name: postcode
         description: Dutch postal code.
@@ -53,12 +53,12 @@ models:
       - name: status
         description: Listing status.
         data_type: text
-        tests:
+        data_tests:
           - not_null
       - name: offering_type
         description: Buy or rent.
         data_type: text
-        tests:
+        data_tests:
           - not_null
       - name: object_type
         description: Property type.
@@ -146,12 +146,12 @@ models:
         data_type: boolean
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: ingested_at
         description: Timestamp when the raw row was first written.
         data_type: timestamptz
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null

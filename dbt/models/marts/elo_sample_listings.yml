@@ -11,6 +11,7 @@ models:
       unique_key: global_id
       on_schema_change: fail
       schema: elo
+      alias: sample_listings
       contract:
         enforced: true
     meta:
@@ -23,7 +24,7 @@ models:
         constraints:
           - type: not_null
           - type: unique
-        tests:
+        data_tests:
           - unique
           - not_null
           - relationships:

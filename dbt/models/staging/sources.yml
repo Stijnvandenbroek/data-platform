@@ -18,32 +18,32 @@ sources:
         columns:
           - name: global_id
             description: Funda internal listing ID.
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: title
             description: Property address / title.
-            tests:
+            data_tests:
               - not_null
           - name: city
             description: City name.
-            tests:
+            data_tests:
               - not_null
           - name: price
             description: Asking or rental price in euros.
           - name: is_active
             description: False when the listing has not appeared in search results for 7+ days.
-            tests:
+            data_tests:
               - not_null
               - accepted_values:
                   values: [true, false]
           - name: last_seen_at
             description: Timestamp the listing was last returned by the Funda search API.
-            tests:
+            data_tests:
               - not_null
           - name: ingested_at
             description: Timestamp when the row was first written.
-            tests:
+            data_tests:
               - not_null
 
       - name: listing_details
@@ -59,36 +59,36 @@ sources:
         columns:
           - name: global_id
             description: Funda internal listing ID.
-            tests:
+            data_tests:
               - not_null
               - relationships:
                   to: source('raw_funda', 'search_results')
                   field: global_id
           - name: tiny_id
             description: Public ID used in Funda URLs.
-            tests:
+            data_tests:
               - not_null
           - name: price
             description: Asking or rental price in euros.
           - name: status
             description: Listing status (available or sold).
-            tests:
+            data_tests:
               - not_null
               - accepted_values:
                   values: ["available", "sold", "withdrawn", "under_negotiation"]
           - name: is_stale
             description: True when the parent search listing is no longer active.
-            tests:
+            data_tests:
               - not_null
               - accepted_values:
                   values: [true, false]
           - name: last_fetched_at
             description: Timestamp of the most recent detail fetch.
-            tests:
+            data_tests:
               - not_null
           - name: ingested_at
             description: Timestamp when the row was first written.
-            tests:
+            data_tests:
               - not_null
 
       - name: price_history
@@ -104,7 +104,7 @@ sources:
         columns:
           - name: global_id
             description: Funda internal listing ID.
-            tests:
+            data_tests:
               - not_null
               - relationships:
                   to: source('raw_funda', 'listing_details')
@@ -113,21 +113,21 @@ sources:
             description: Price at this point in time.
           - name: date
             description: Date of this price event.
-            tests:
+            data_tests:
               - not_null
           - name: source
             description: Price data source (funda or woz).
-            tests:
+            data_tests:
               - not_null
               - accepted_values:
                   values: ["Funda", "WOZ"]
           - name: status
             description: Price event type (asking_price, sold, or woz).
-            tests:
+            data_tests:
               - not_null
               - accepted_values:
                   values: ["asking_price", "sold", "woz", "withdrawn"]
           - name: ingested_at
             description: Timestamp when the row was written.
-            tests:
+            data_tests:
               - not_null

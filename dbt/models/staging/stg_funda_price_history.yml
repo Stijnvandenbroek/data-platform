@@ -15,7 +15,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
           - relationships:
               to: ref('stg_funda_listings')
@@ -23,7 +23,7 @@ models:
       - name: price
         description: Price at this point in time.
         data_type: bigint
-        tests:
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: ">= 0"
               where: "price is not null"
@@ -35,7 +35,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: price_timestamp
         description: Timestamp of this price event.
@@ -45,7 +45,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
           - accepted_values:
               values: ["Funda", "WOZ"]
@@ -54,7 +54,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
           - accepted_values:
               values: ["asking_price", "sold", "woz", "withdrawn"]
@@ -63,5 +63,5 @@ models:
         data_type: timestamptz
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null

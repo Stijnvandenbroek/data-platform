@@ -18,7 +18,7 @@ models:
         constraints:
           - type: not_null
           - type: unique
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: tiny_id
@@ -35,7 +35,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: postcode
         description: Dutch postal code.
@@ -66,7 +66,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: construction_type
         description: Construction method.
@@ -80,7 +80,7 @@ models:
       - name: living_area
         description: Interior floor area in m².
         data_type: integer
-        tests:
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: "> 0"
               where: "living_area is not null"
@@ -117,7 +117,7 @@ models:
       - name: current_price
         description: Current asking or rental price in euros.
         data_type: bigint
-        tests:
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: "> 0"
               where: "current_price is not null"
@@ -138,7 +138,7 @@ models:
         data_type: boolean
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: photo_count
         description: Number of photos on the listing.
@@ -154,7 +154,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: publication_date
         description: Listing publication date.
@@ -164,12 +164,12 @@ models:
         data_type: timestamptz
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: price_per_sqm
         description: Current price divided by living area in m².
         data_type: numeric
-        tests:
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: "> 0"
               where: "price_per_sqm is not null"

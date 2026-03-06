@@ -16,7 +16,7 @@ models:
         constraints:
           - type: not_null
           - type: unique
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: tiny_id
@@ -24,7 +24,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: title
         description: Property address / title.
@@ -34,7 +34,7 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
       - name: postcode
         description: Dutch postal code.
@@ -51,7 +51,7 @@ models:
       - name: price
         description: Asking or rental price in euros.
         data_type: bigint
-        tests:
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: ">= 0"
               where: "price is not null"
@@ -63,14 +63,14 @@ models:
         data_type: text
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
           - accepted_values:
               values: ["available", "sold", "withdrawn", "under_negotiation"]
       - name: offering_type
         description: Buy or rent.
         data_type: text
-        tests:
+        data_tests:
           - not_null
       - name: object_type
         description: Property type (house, apartment, etc.).
@@ -87,14 +87,14 @@ models:
       - name: energy_label
         description: Dutch energy performance label (A–G).
         data_type: text
-        tests:
+        data_tests:
           - accepted_values:
               values: ["A4", "A3", "A2", "A1", "A", "B", "C", "D", "E", "F", "G"]
               where: "energy_label is not null"
       - name: living_area
         description: Interior floor area in m².
         data_type: integer
-        tests:
+        data_tests:
           - dbt_utils.expression_is_true:
               expression: "> 0"
               where: "living_area is not null"
@@ -154,5 +154,5 @@ models:
         data_type: timestamptz
         constraints:
           - type: not_null
-        tests:
+        data_tests:
           - not_null
