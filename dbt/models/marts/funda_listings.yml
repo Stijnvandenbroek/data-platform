@@ -77,6 +77,10 @@ models:
       - name: energy_label
         description: Dutch energy performance label (A–G).
         data_type: text
+        data_tests:
+          - accepted_values:
+              values: ["A5", "A4", "A3", "A2", "A1", "A", "B", "C", "D", "E", "F", "G"]
+              where: "energy_label is not null"
       - name: living_area
         description: Interior floor area in m².
         data_type: integer

@@ -12,6 +12,10 @@ dependencies = [
     "pyfunda",
     "jinja2",
     "elementary-data[postgres]",
+    "mlflow",
+    "lightgbm",
+    "scikit-learn",
+    "pandas",
 ]
 
 [build-system]

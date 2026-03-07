@@ -12,13 +12,14 @@ from data_platform.assets.ingestion.funda import (
     raw_funda_price_history,
     raw_funda_search_results,
 )
+from data_platform.assets.ml import elo_prediction_model
 from data_platform.helpers import apply_automation
 from data_platform.jobs import (
     elementary_refresh_job,
     funda_ingestion_job,
     funda_raw_quality_job,
 )
-from data_platform.resources import FundaResource, PostgresResource
+from data_platform.resources import FundaResource, MLflowResource, PostgresResource
 from data_platform.schedules import (
     elementary_refresh_schedule,
     funda_ingestion_schedule,
@@ -34,6 +35,7 @@ defs = Definitions(
             raw_funda_price_history,
             elo_ratings,
             elo_comparisons,
+            elo_prediction_model,
         ]
     ),
     jobs=[funda_ingestion_job, funda_raw_quality_job, elementary_refresh_job],
@@ -53,5 +55,6 @@ defs = Definitions(
         "dbt": DbtCliResource(project_dir=str(DBT_PROJECT_DIR)),
         "funda": FundaResource(),
         "postgres": PostgresResource(),
+        "mlflow_resource": MLflowResource(),
     },
 )

@@ -37,3 +37,12 @@ class PostgresResource(ConfigurableResource):
         engine = self.get_engine()
         with engine.begin() as conn:
             conn.execute(text(statement), rows)
+
+
+class MLflowResource(ConfigurableResource):
+    """MLflow experiment tracking resource."""
+
+    tracking_uri: str = EnvVar("MLFLOW_TRACKING_URI")
+
+    def get_tracking_uri(self) -> str:
+        return self.tracking_uri
