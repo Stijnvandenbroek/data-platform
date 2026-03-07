@@ -55,6 +55,7 @@ class FundaPriceHistoryConfig(Config):
     """Config for price history fetch."""
 
     fetch_all: bool = False
+    staleness_days: int = 7
 
 
 @asset(
@@ -371,6 +372,7 @@ def raw_funda_price_history(
                     _SQL_DIR,
                     "dml/select_new_price_history_listings.sql",
                     schema=_SCHEMA,
+                    staleness_days=config.staleness_days,
                 )
             )
         result = conn.execute(query)

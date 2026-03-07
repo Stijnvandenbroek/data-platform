@@ -15,6 +15,7 @@ ref = "{% macro ref(model_name) %}{{ model_name }}{% endmacro %}"
 
 [sqlfluff:templater:jinja:context]
 schema = raw_funda
+staleness_days = 7
 
 [sqlfluff:indentation]
 indent_unit = space
