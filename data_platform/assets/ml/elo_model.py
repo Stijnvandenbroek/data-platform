@@ -6,8 +6,10 @@ import mlflow
 import mlflow.lightgbm
 import numpy as np
 import pandas as pd
+from sqlalchemy import text
 from dagster import (
     AssetExecutionContext,
+    AssetKey,
     Config,
     MaterializeResult,
     MetadataValue,
@@ -105,7 +107,7 @@ def _preprocess(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(
-    deps=["elo_ratings", "funda_listings"],
+    deps=["elo_ratings", AssetKey(["marts", "funda_listings"])],
     group_name="ml",
     kinds={"python", "mlflow", "lightgbm"},
     tags={"manual": "true"},
@@ -124,7 +126,7 @@ def elo_prediction_model(
     engine = postgres.get_engine()
     query = render_sql(_SQL_DIR, "select_training_data.sql")
     df = pd.read_sql(
-        query,
+        text(query),
         engine,
         params={"min_comparisons": config.min_comparisons},
     )

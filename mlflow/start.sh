@@ -32,4 +32,6 @@ exec mlflow server \
     --host=0.0.0.0 \
     --port=5000 \
     --backend-store-uri="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflow" \
-    --default-artifact-root=/mlflow/artifacts
+    --default-artifact-root=/mlflow/artifacts \
+    --allowed-hosts="*" \
+    --cors-allowed-origins="*"

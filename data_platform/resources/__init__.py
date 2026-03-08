@@ -46,3 +46,12 @@ class MLflowResource(ConfigurableResource):
 
     def get_tracking_uri(self) -> str:
         return self.tracking_uri
+
+
+class DiscordResource(ConfigurableResource):
+    """Discord webhook resource for sending notifications."""
+
+    webhook_url: str = EnvVar("DISCORD_WEBHOOK_URL")
+
+    def get_webhook_url(self) -> str:
+        return self.webhook_url
