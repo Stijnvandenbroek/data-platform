@@ -26,6 +26,7 @@ def _ensure_schema(conn: object) -> None:
 @asset(
     deps=["elo_sample_listings"],
     group_name="elo",
+    kinds={"python", "postgres"},
     description="Creates the ELO ratings table that stores per-listing ELO scores.",
 )
 def elo_ratings(
@@ -53,6 +54,7 @@ def elo_ratings(
 @asset(
     deps=["elo_sample_listings"],
     group_name="elo",
+    kinds={"python", "postgres"},
     description="Creates the ELO comparisons table that records pairwise match results.",
 )
 def elo_comparisons(

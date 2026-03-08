@@ -11,7 +11,9 @@ deployed via Docker Compose.
 | -------------- | ------------------------------------------------- |
 | Orchestration  | Dagster (webserver + daemon)                      |
 | Transformation | dbt-core + dbt-postgres                           |
+| ML             | LightGBM, MLflow, scikit-learn                    |
 | Storage        | PostgreSQL 16                                     |
+| Notifications  | Discord webhooks                                  |
 | Observability  | Elementary (report served via nginx)              |
 | CI             | GitHub Actions (Ruff, SQLFluff, Prettier, pytest) |
 | Package / venv | uv                                                |
@@ -49,6 +51,25 @@ types to prevent silent schema drift.
 - **Source freshness**: a scheduled job verifies raw tables haven't gone stale.
 - **Elementary**: collects test results and generates an HTML observability report served via nginx.
 
+### Machine learning
+
+An **ELO rating system** lets you rank listings via pairwise comparisons. An ML pipeline then learns
+to predict ELO scores for unseen listings:
+
+| Asset                  | Description                                                                         |
+| ---------------------- | ----------------------------------------------------------------------------------- |
+| `elo_prediction_model` | Trains a LightGBM regressor on listing features → ELO rating. Logs to MLflow.       |
+| `elo_inference`        | Loads the best model from MLflow, scores all unscored listings, writes to Postgres. |
+| `listing_alert`        | Sends a Discord notification for listings with a predicted ELO above a threshold.   |
+
+All three are tagged `"manual"` — they run only when triggered explicitly.
+
+### Notifications
+
+The `listing_alert` asset posts rich embeds to a Discord channel via webhook when newly scored
+listings exceed a configurable ELO threshold. Notifications are deduplicated using the
+`elo.notified` table.
+
 ## Scheduling & automation
 
 Ingestion assets run on cron schedules managed by the Dagster daemon. Downstream dbt models use
@@ -65,11 +86,13 @@ assets are still materialising.
 data_platform/              # Dagster Python package
   assets/
     dbt.py                  # @dbt_assets definition
+    elo/                    # ELO schema/table management assets
     ingestion/              # Raw ingestion assets + SQL templates
+    ml/                     # ML assets (training, inference, alerts)
   helpers/                  # Shared utilities (SQL rendering, formatting, automation)
   jobs/                     # Job definitions
   schedules/                # Schedule definitions
-  resources/                # Dagster resources (API clients, Postgres)
+  resources/                # Dagster resources (Postgres, MLflow, Discord, Funda)
   definitions.py            # Main Definitions entry point
 dbt/                        # dbt project
   models/
@@ -134,5 +157,6 @@ make reload-code       # Rebuild + restart user-code container
 | Service           | URL                   |
 | ----------------- | --------------------- |
 | Dagster UI        | http://localhost:3000 |
+| MLflow UI         | http://localhost:5000 |
 | pgAdmin           | http://localhost:5050 |
 | Elementary report | http://localhost:8080 |

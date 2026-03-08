@@ -84,7 +84,7 @@ class EloModelConfig(Config):
     mlflow_experiment: str = "elo-rating-prediction"
 
 
-def _preprocess(df: pd.DataFrame) -> pd.DataFrame:
+def preprocess(df: pd.DataFrame) -> pd.DataFrame:
     """Convert raw columns to model-ready numeric features."""
     df["energy_label_num"] = (
         df["energy_label"]
@@ -139,7 +139,7 @@ def elo_prediction_model(
         )
 
     # Preprocess and normalise ELO target
-    df = _preprocess(df)
+    df = preprocess(df)
     df["elo_norm"] = (df["elo_rating"] - 1500) / 100
 
     X = df[ALL_FEATURES].copy()

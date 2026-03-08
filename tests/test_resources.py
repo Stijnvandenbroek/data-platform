@@ -2,7 +2,12 @@
 
 from unittest.mock import MagicMock, patch
 
-from data_platform.resources import FundaResource, PostgresResource
+from data_platform.resources import (
+    DiscordResource,
+    FundaResource,
+    MLflowResource,
+    PostgresResource,
+)
 
 
 class TestFundaResource:
@@ -79,3 +84,15 @@ class TestPostgresResource:
             res.execute_many("INSERT INTO t VALUES (:id)", rows)
 
         mock_conn.execute.assert_called_once()
+
+
+class TestMLflowResource:
+    def test_tracking_uri(self):
+        resource = MLflowResource(tracking_uri="http://mlflow:5000")
+        assert resource.get_tracking_uri() == "http://mlflow:5000"
+
+
+class TestDiscordResource:
+    def test_webhook_url(self):
+        resource = DiscordResource(webhook_url="https://discord.com/api/webhooks/test")
+        assert resource.get_webhook_url() == "https://discord.com/api/webhooks/test"

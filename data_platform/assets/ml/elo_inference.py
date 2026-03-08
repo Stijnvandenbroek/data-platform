@@ -16,7 +16,7 @@ from sqlalchemy import text
 
 from data_platform.assets.ml.elo_model import (
     ALL_FEATURES,
-    _preprocess,
+    preprocess,
 )
 from data_platform.helpers import render_sql
 from data_platform.resources import MLflowResource, PostgresResource
@@ -104,7 +104,7 @@ def elo_inference(
     model = mlflow.lightgbm.load_model(model_uri)
 
     # Preprocess features identically to training
-    df = _preprocess(df)
+    df = preprocess(df)
     X = df[ALL_FEATURES].copy()
 
     # Predict normalised ELO and convert back to original scale

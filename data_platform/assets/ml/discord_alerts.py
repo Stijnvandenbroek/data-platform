@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pandas as pd
 import requests
 from dagster import (
     AssetExecutionContext,
@@ -51,6 +52,7 @@ def _build_embed(row) -> dict:
     deps=["elo_inference"],
     group_name="ml",
     kinds={"python", "discord"},
+    tags={"manual": "true"},
     description=(
         "Send a Discord notification for newly scored listings whose "
         "predicted ELO exceeds a configurable threshold."
@@ -69,7 +71,7 @@ def listing_alert(
         conn.execute(text(render_sql(_SQL_DIR, "ensure_notified_table.sql")))
 
     query = render_sql(_SQL_DIR, "select_top_predictions.sql")
-    df = __import__("pandas").read_sql(
+    df = pd.read_sql(
         text(query),
         engine,
         params={"min_elo": config.min_elo},
