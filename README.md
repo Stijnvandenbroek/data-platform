@@ -81,35 +81,6 @@ Assets tagged `"manual"` are excluded from auto-materialisation and only run whe
 explicitly. A guard condition (`~any_deps_in_progress`) prevents duplicate runs while upstream
 assets are still materialising.
 
-## Project layout
-
-```
-data_platform/              # Dagster Python package
-  assets/
-    dbt.py                  # @dbt_assets definition
-    elo/                    # ELO schema/table management assets
-    ingestion/              # Raw ingestion assets + SQL templates
-    ml/                     # ML assets (training, inference, alerts)
-  helpers/                  # Shared utilities (SQL rendering, formatting, automation)
-  jobs/                     # Job definitions
-  schedules/                # Schedule definitions
-  resources/                # Dagster resources (Postgres, MLflow, Discord, Funda)
-  definitions.py            # Main Definitions entry point
-dbt/                        # dbt project
-  models/
-    staging/                # 1:1 views on raw tables + source definitions
-    intermediate/           # Enrichment joins
-    marts/                  # Incremental analysis-ready tables
-  macros/                   # Custom schema generation, Elementary compat
-  profiles.yml              # Reads credentials from env vars
-dagster_home/               # dagster.yaml + workspace.yaml
-tests/                      # pytest test suite
-nginx/                      # Elementary report nginx config
-docker-compose.yaml         # All services
-Dockerfile                  # Multi-stage: usercode + dagster-infra
-Makefile                    # Developer shortcuts
-```
-
 ## Getting started
 
 ```bash
