@@ -9,6 +9,13 @@ models:
     meta:
       dagster:
         group: funda
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - global_id
+            - price_date
+            - price_source
+            - price_status
     columns:
       - name: global_id
         description: Funda internal listing ID.
