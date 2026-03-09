@@ -54,7 +54,8 @@ types to prevent silent schema drift.
 ### Machine learning
 
 An **ELO rating system** lets you rank listings via pairwise comparisons. An ML pipeline then learns
-to predict ELO scores for unseen listings:
+to predict ELO scores for unseen listings. The ranking UI and model logic originate from
+[house-elo-ranking](https://github.com/Stijnvandenbroek/house-elo-ranking).
 
 | Asset                  | Description                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------- |
