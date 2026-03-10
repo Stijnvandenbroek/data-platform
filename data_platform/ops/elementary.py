@@ -18,15 +18,25 @@ def _elementary_schema_exists() -> bool:
         port=os.environ.get("POSTGRES_PORT", "5432"),
         dbname=os.environ["POSTGRES_DB"],
     )
-    engine = create_engine(url)
-    with engine.connect() as conn:
-        return bool(
-            conn.execute(
-                text(
-                    "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'elementary'"
-                )
-            ).scalar()
-        )
+    engine = create_engine(
+        url,
+        pool_pre_ping=True,
+        connect_args={"connect_timeout": 10},
+    )
+
+    from data_platform.resources import _retry_on_operational_error
+
+    def _query():
+        with engine.connect() as conn:
+            return bool(
+                conn.execute(
+                    text(
+                        "SELECT 1 FROM information_schema.schemata WHERE schema_name = 'elementary'"
+                    )
+                ).scalar()
+            )
+
+    return _retry_on_operational_error(_query)
 
 
 @op

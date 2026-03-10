@@ -1,9 +1,36 @@
 """Dagster resources."""
 
-from dagster import ConfigurableResource, EnvVar
+import time
+
+from dagster import ConfigurableResource, EnvVar, get_dagster_logger
 from funda import Funda
 from sqlalchemy import create_engine, text
-from sqlalchemy.pool import NullPool
+from sqlalchemy.exc import OperationalError
+
+logger = get_dagster_logger()
+
+_RETRY_ATTEMPTS = 5
+_RETRY_BASE_DELAY = 1  # seconds; doubles each attempt
+
+
+def _retry_on_operational_error(
+    fn, *, attempts=_RETRY_ATTEMPTS, base_delay=_RETRY_BASE_DELAY
+):
+    """Retry *fn* with exponential back-off on SQLAlchemy OperationalError."""
+    for attempt in range(1, attempts + 1):
+        try:
+            return fn()
+        except OperationalError:
+            if attempt == attempts:
+                raise
+            delay = base_delay * 2 ** (attempt - 1)
+            logger.warning(
+                "DB connection attempt %d/%d failed, retrying in %ds …",
+                attempt,
+                attempts,
+                delay,
+            )
+            time.sleep(delay)
 
 
 class FundaResource(ConfigurableResource):
@@ -26,17 +53,31 @@ class PostgresResource(ConfigurableResource):
 
     def get_engine(self):
         url = f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbname}"
-        return create_engine(url, poolclass=NullPool)
+        return create_engine(
+            url,
+            pool_pre_ping=True,
+            pool_size=2,
+            max_overflow=3,
+            connect_args={"connect_timeout": 10},
+        )
 
     def execute(self, statement: str, params: dict | None = None):
         engine = self.get_engine()
-        with engine.begin() as conn:
-            conn.execute(text(statement), params or {})
+
+        def _run():
+            with engine.begin() as conn:
+                conn.execute(text(statement), params or {})
+
+        _retry_on_operational_error(_run)
 
     def execute_many(self, statement: str, rows: list[dict]):
         engine = self.get_engine()
-        with engine.begin() as conn:
-            conn.execute(text(statement), rows)
+
+        def _run():
+            with engine.begin() as conn:
+                conn.execute(text(statement), rows)
+
+        _retry_on_operational_error(_run)
 
 
 class MLflowResource(ConfigurableResource):
