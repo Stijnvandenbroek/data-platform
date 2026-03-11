@@ -144,7 +144,58 @@ jobs:
         run: uv run dbt parse --project-dir dbt --profiles-dir dbt
 
       - name: Run tests with coverage
-        run: uv run pytest tests/ --cov=data_platform --cov-report=json:coverage.json
+        run:
+          uv run pytest tests/ --cov=data_platform --cov-report=json:coverage.json --tb=short -q
+          2>&1 | tee pytest-output.txt
+
+      - name: Write test summary
+        if: always()
+        run: |
+          python -c "
+          import json, pathlib, os
+
+          summary = os.environ.get('GITHUB_STEP_SUMMARY', '/dev/null')
+
+          lines = []
+          lines.append('## 🧪 Test Results\n')
+
+          # Parse coverage JSON if available
+          cov_file = pathlib.Path('coverage.json')
+          if cov_file.exists():
+              data = json.loads(cov_file.read_text())
+              totals = data.get('totals', {})
+              pct = totals.get('percent_covered', 0)
+              stmts = totals.get('num_statements', 0)
+              missed = totals.get('missing_lines', 0)
+              covered = totals.get('covered_lines', 0)
+
+              lines.append(f'**Coverage: {pct:.1f}%** ({covered}/{stmts} statements)\n')
+              lines.append('')
+              lines.append('| Metric | Value |')
+              lines.append('| --- | --- |')
+              lines.append(f'| Statements | {stmts} |')
+              lines.append(f'| Covered | {covered} |')
+              lines.append(f'| Missed | {missed} |')
+              lines.append(f'| Coverage | {pct:.1f}% |')
+              lines.append('')
+
+          # Append raw pytest output
+          pytest_file = pathlib.Path('pytest-output.txt')
+          if pytest_file.exists():
+              output = pytest_file.read_text().strip()
+              # Extract the final summary line (e.g., '144 passed in 2.34s')
+              for line in reversed(output.splitlines()):
+                  if 'passed' in line or 'failed' in line or 'error' in line:
+                      lines.append(f'**{line.strip()}**\n')
+                      break
+              lines.append('')
+              lines.append('<details><summary>Full output</summary>\n')
+              lines.append(f'\`\`\`\n{output}\n\`\`\`')
+              lines.append('</details>')
+
+          with open(summary, 'a') as f:
+              f.write('\n'.join(lines) + '\n')
+          "
 
       - name: Round coverage percentage
         if: github.ref == 'refs/heads/main'
@@ -176,3 +227,27 @@ jobs:
           git add .
           git commit -m "Update coverage badge"
           git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" coverage-badge
+
+  # Summary
+  summary:
+    name: CI Summary
+    if: always()
+    needs: [lint-python, lint-sql, lint-yaml-json-md, validate-dbt, validate-dagster, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary
+        run: |
+          cat <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          ## 📋 CI Pipeline Summary
+
+          | Stage | Job | Status |
+          | --- | --- | --- |
+          | Lint | Ruff | ${{ needs.lint-python.result == 'success' && '✅' || '❌' }} ${{ needs.lint-python.result }} |
+          | Lint | SQLFluff | ${{ needs.lint-sql.result == 'success' && '✅' || '❌' }} ${{ needs.lint-sql.result }} |
+          | Lint | Prettier | ${{ needs.lint-yaml-json-md.result == 'success' && '✅' || '❌' }} ${{ needs.lint-yaml-json-md.result }} |
+          | Validate | dbt parse | ${{ needs.validate-dbt.result == 'success' && '✅' || '❌' }} ${{ needs.validate-dbt.result }} |
+          | Validate | Dagster definitions | ${{ needs.validate-dagster.result == 'success' && '✅' || '❌' }} ${{ needs.validate-dagster.result }} |
+          | Test | Pytest + Coverage | ${{ needs.test.result == 'success' && '✅' || '❌' }} ${{ needs.test.result }} |
+
+          > **Pipeline: ${{ needs.test.result == 'success' && needs.validate-dagster.result == 'success' && needs.validate-dbt.result == 'success' && needs.lint-python.result == 'success' && needs.lint-sql.result == 'success' && needs.lint-yaml-json-md.result == 'success' && '✅ All checks passed' || '❌ Some checks failed' }}**
+          EOF
