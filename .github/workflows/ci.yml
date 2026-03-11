@@ -68,6 +68,7 @@ jobs:
   # dbt validation
   validate-dbt:
     name: dbt parse
+    needs: [lint-python, lint-sql, lint-yaml-json-md]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
