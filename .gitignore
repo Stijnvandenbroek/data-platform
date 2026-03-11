@@ -23,5 +23,9 @@ dagster_home/compute_logs/
 # Node
 node_modules/
 
+# Coverage
+.coverage
+coverage.json
+
 # Docker
 *.log

@@ -88,14 +88,13 @@ jobs:
         uses: jaywcjlove/coverage-badges-cli@v2.1.0
         with:
           source: coverage.json
-          output: coverage-badge.svg
+          output: badge/coverage-badge.svg
 
       - name: Deploy coverage badge
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./badge
           publish_branch: coverage-badge
           keep_files: false
-          include_files: coverage-badge.svg
