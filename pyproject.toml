@@ -35,5 +35,8 @@ dev = [
     "pytest-cov",
     "ruff",
     "sqlfluff",
+    "chardet<6",
     "pre-commit",
 ]
+
+[tool.pytest.ini_options]

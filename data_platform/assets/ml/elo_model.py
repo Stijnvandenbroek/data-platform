@@ -86,6 +86,8 @@ class EloModelConfig(Config):
 
 def preprocess(df: pd.DataFrame) -> pd.DataFrame:
     """Convert raw columns to model-ready numeric features."""
+    pd.set_option("future.no_silent_downcasting", True)
+
     df["energy_label_num"] = (
         df["energy_label"]
         .str.strip()
