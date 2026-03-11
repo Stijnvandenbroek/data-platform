@@ -83,13 +83,18 @@ jobs:
       - name: Run tests with coverage
         run: uv run pytest tests/ --cov=data_platform --cov-report=json:coverage.json
 
+      - name: Round coverage percentage
+        if: github.ref == 'refs/heads/main'
+        run: |
+          COVERAGE=$(python -c "import json; print(round(json.load(open('coverage.json'))['totals']['percent_covered']))")
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+
       - name: Generate coverage badge
         if: github.ref == 'refs/heads/main'
         uses: jaywcjlove/coverage-badges-cli@v2.1.0
         with:
-          source: coverage.json
           output: badge/coverage-badge.svg
-          jsonPath: totals.percent_covered
+          value: ${{ env.COVERAGE }}%
 
       - name: Deploy coverage badge
         if: github.ref == 'refs/heads/main'
