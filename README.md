@@ -1,7 +1,7 @@
 # data-platform
 
 [![CI](https://github.com/Stijnvandenbroek/data-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Stijnvandenbroek/data-platform/actions/workflows/ci.yml)
-![Coverage](https://gist.githubusercontent.com/Stijnvandenbroek/COVERAGE_GIST_ID/raw/coverage-badge.svg)
+![Coverage](https://raw.githubusercontent.com/Stijnvandenbroek/data-platform/coverage-badge/coverage-badge.svg)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![dbt](https://img.shields.io/badge/dbt-core-orange)
 ![Dagster](https://img.shields.io/badge/dagster-orchestration-4F43DD)

@@ -90,10 +90,12 @@ jobs:
           source: coverage.json
           output: coverage-badge.svg
 
-      - name: Upload coverage badge to Gist
+      - name: Deploy coverage badge
         if: github.ref == 'refs/heads/main'
-        uses: exuanbo/actions-deploy-gist@v1
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: ${{ vars.COVERAGE_GIST_ID }}
-          file_path: coverage-badge.svg
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: coverage-badge
+          keep_files: false
+          include_files: coverage-badge.svg
