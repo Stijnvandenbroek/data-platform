@@ -86,15 +86,22 @@ jobs:
       - name: Round coverage percentage
         if: github.ref == 'refs/heads/main'
         run: |
-          COVERAGE=$(python -c "import json; print(round(json.load(open('coverage.json'))['totals']['percent_covered']))")
-          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+          python -c "
+          import json
+          with open('coverage.json') as f:
+              data = json.load(f)
+          data['totals']['percent_covered'] = round(data['totals']['percent_covered'])
+          with open('coverage.json', 'w') as f:
+              json.dump(data, f)
+          "
 
       - name: Generate coverage badge
         if: github.ref == 'refs/heads/main'
         uses: jaywcjlove/coverage-badges-cli@v2.1.0
         with:
+          source: coverage.json
           output: badge/coverage-badge.svg
-          value: ${{ env.COVERAGE }}%
+          jsonPath: totals.percent_covered
 
       - name: Deploy coverage badge
         if: github.ref == 'refs/heads/main'
