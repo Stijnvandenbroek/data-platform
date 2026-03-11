@@ -80,5 +80,20 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Run tests
-        run: uv run pytest
+      - name: Run tests with coverage
+        run: uv run pytest tests/ --cov=data_platform --cov-report=json:coverage.json
+
+      - name: Generate coverage badge
+        if: github.ref == 'refs/heads/main'
+        uses: jaywcjlove/coverage-badges-cli@v2.1.0
+        with:
+          source: coverage.json
+          output: coverage-badge.svg
+
+      - name: Upload coverage badge to Gist
+        if: github.ref == 'refs/heads/main'
+        uses: exuanbo/actions-deploy-gist@v1
+        with:
+          token: ${{ secrets.GIST_TOKEN }}
+          gist_id: ${{ vars.COVERAGE_GIST_ID }}
+          file_path: coverage-badge.svg

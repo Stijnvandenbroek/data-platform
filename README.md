@@ -1,10 +1,12 @@
 # data-platform
 
 [![CI](https://github.com/Stijnvandenbroek/data-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Stijnvandenbroek/data-platform/actions/workflows/ci.yml)
+![Coverage](https://gist.githubusercontent.com/Stijnvandenbroek/COVERAGE_GIST_ID/raw/coverage-badge.svg)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![dbt](https://img.shields.io/badge/dbt-core-orange)
 ![Dagster](https://img.shields.io/badge/dagster-orchestration-4F43DD)
 ![PostgreSQL 16](https://img.shields.io/badge/postgres-16-336791)
+![MLflow](https://img.shields.io/badge/mlflow-tracking-0194E2)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 A personal data platform for ingesting, transforming and analysing external data sources. Built with
