@@ -118,6 +118,6 @@ def listing_alert(
     return MaterializeResult(
         metadata={
             "notified": sent,
-            "min_elo_threshold": MetadataValue.float(config.min_elo),
+            "min_elo_threshold": MetadataValue.float(float(config.min_elo)),
         }
     )
