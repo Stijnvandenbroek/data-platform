@@ -23,4 +23,4 @@ select
     er.elo_rating
 from marts.funda_listings as fl
 inner join elo.ratings as er on fl.global_id = er.global_id
-where er.comparison_count >=: min_comparisons
+where er.comparison_count >= :min_comparisons
