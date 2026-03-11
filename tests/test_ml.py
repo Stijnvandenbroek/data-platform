@@ -21,9 +21,7 @@ from data_platform.assets.ml.discord_alerts import (
 from data_platform.assets.ml.elo_inference import EloInferenceConfig, _best_run
 
 
-# ---------------------------------------------------------------------------
 # preprocess
-# ---------------------------------------------------------------------------
 
 
 class TestPreprocess:
@@ -101,9 +99,7 @@ class TestPreprocess:
             assert feat in df.columns, f"Missing feature: {feat}"
 
 
-# ---------------------------------------------------------------------------
 # _best_run
-# ---------------------------------------------------------------------------
 
 
 class TestBestRun:
@@ -152,9 +148,7 @@ class TestBestRun:
         )
 
 
-# ---------------------------------------------------------------------------
 # _build_embed
-# ---------------------------------------------------------------------------
 
 
 class TestBuildEmbed:
@@ -209,9 +203,7 @@ class TestBuildEmbed:
         assert embed["color"] == 0x00B894
 
 
-# ---------------------------------------------------------------------------
 # _cleanup_old_runs
-# ---------------------------------------------------------------------------
 
 
 class TestCleanupOldRuns:
@@ -257,9 +249,7 @@ class TestCleanupOldRuns:
         client.delete_run.assert_not_called()
 
 
-# ---------------------------------------------------------------------------
 # elo_prediction_model asset
-# ---------------------------------------------------------------------------
 
 
 def _make_training_df(n=20):
@@ -354,9 +344,7 @@ class TestEloPredictionModelAsset:
             elo_prediction_model(context, config, postgres, mlflow_resource)
 
 
-# ---------------------------------------------------------------------------
 # elo_inference asset
-# ---------------------------------------------------------------------------
 
 
 class TestEloInferenceAsset:
@@ -457,9 +445,7 @@ class TestEloInferenceAsset:
         assert result.metadata["status"].value == "No new listings to score."
 
 
-# ---------------------------------------------------------------------------
 # listing_alert asset
-# ---------------------------------------------------------------------------
 
 
 class TestListingAlertAsset:
@@ -570,9 +556,7 @@ class TestListingAlertAsset:
         assert mock_post.call_count == 2
 
 
-# ---------------------------------------------------------------------------
 # Config defaults
-# ---------------------------------------------------------------------------
 
 
 class TestMLConfigs:

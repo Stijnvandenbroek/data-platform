@@ -16,9 +16,7 @@ from data_platform.ops.elementary import (
 )
 
 
-# ---------------------------------------------------------------------------
 # SourceFreshnessConfig
-# ---------------------------------------------------------------------------
 
 
 class TestSourceFreshnessConfig:
@@ -27,9 +25,7 @@ class TestSourceFreshnessConfig:
         assert cfg.source_name == "raw_funda"
 
 
-# ---------------------------------------------------------------------------
 # _elementary_schema_exists
-# ---------------------------------------------------------------------------
 
 
 class TestElementarySchemaExists:
@@ -69,9 +65,7 @@ class TestElementarySchemaExists:
         assert result is False
 
 
-# ---------------------------------------------------------------------------
 # elementary_run_models
-# ---------------------------------------------------------------------------
 
 
 class TestElementaryRunModels:
@@ -110,9 +104,7 @@ class TestElementaryRunModels:
             elementary_run_models(context)
 
 
-# ---------------------------------------------------------------------------
 # elementary_generate_report
-# ---------------------------------------------------------------------------
 
 
 class TestElementaryGenerateReport:

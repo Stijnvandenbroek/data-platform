@@ -27,9 +27,7 @@ ALL_JOBS = [
 ]
 
 
-# ---------------------------------------------------------------------------
 # Generic schedule tests
-# ---------------------------------------------------------------------------
 
 
 class TestSchedulesGeneric:
@@ -53,9 +51,7 @@ class TestSchedulesGeneric:
         assert schedule.default_status == DefaultScheduleStatus.RUNNING
 
 
-# ---------------------------------------------------------------------------
 # Generic job tests
-# ---------------------------------------------------------------------------
 
 
 class TestJobsGeneric:
@@ -70,9 +66,7 @@ class TestJobsGeneric:
         assert job.description
 
 
-# ---------------------------------------------------------------------------
 # Schedule-specific tests
-# ---------------------------------------------------------------------------
 
 
 class TestScheduleSpecific:
@@ -89,9 +83,7 @@ class TestScheduleSpecific:
         assert funda_ingestion_schedule._run_config_fn is not None
 
 
-# ---------------------------------------------------------------------------
 # Definitions integration test
-# ---------------------------------------------------------------------------
 
 
 class TestDefinitions:
