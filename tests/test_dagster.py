@@ -1,7 +1,5 @@
 """Generic tests for Dagster definitions — schedules, jobs, and the Definitions object."""
 
-from pathlib import Path
-
 import pytest
 from dagster import DefaultScheduleStatus
 
@@ -95,14 +93,7 @@ class TestScheduleSpecific:
 # Definitions integration test
 # ---------------------------------------------------------------------------
 
-_MANIFEST = Path(__file__).resolve().parent.parent / "dbt" / "target" / "manifest.json"
-_skip_no_manifest = pytest.mark.skipif(
-    not _MANIFEST.exists(),
-    reason="dbt manifest not found (only available after local dbt compile)",
-)
 
-
-@_skip_no_manifest
 class TestDefinitions:
     def test_definitions_loads(self):
         from data_platform.definitions import defs
