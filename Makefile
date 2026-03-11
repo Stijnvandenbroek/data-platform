@@ -4,7 +4,7 @@
        dagster-dev \
        lint lint-fix lint-python lint-sql lint-format \
        pre-commit pre-commit-install \
-       test clean
+       test coverage clean
 
 # Default Docker Compose project containers
 COMPOSE  := docker compose
@@ -118,6 +118,9 @@ validate: ## Validate Dagster definitions load without errors
 
 test: ## Run pytest
 	uv run pytest
+
+coverage: ## Run pytest with coverage report
+	uv run pytest tests/ --cov=data_platform --cov-report=term-missing
 
 ## Misc
 clean: ## Remove Python caches and build artefacts
