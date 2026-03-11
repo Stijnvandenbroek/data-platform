@@ -89,6 +89,7 @@ jobs:
         with:
           source: coverage.json
           output: badge/coverage-badge.svg
+          jsonPath: totals.percent_covered
 
       - name: Deploy coverage badge
         if: github.ref == 'refs/heads/main'
