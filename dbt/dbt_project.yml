@@ -20,6 +20,7 @@ on-run-end:
 vars:
   elementary:
     edr_interval: 24h
+    days_back: 7
 
 models:
   data_platform:
