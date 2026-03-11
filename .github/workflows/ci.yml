@@ -65,9 +65,9 @@ jobs:
             "**/*.yml" "**/*.yaml" "**/*.md" \
             --ignore-path .prettierignore
 
-  # Tests
-  test:
-    name: Pytest
+  # dbt validation
+  validate-dbt:
+    name: dbt parse
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -83,11 +83,64 @@ jobs:
       - name: Load environment from .env.example
         run: grep -v '^#' .env.example | grep -v '^$' >> "$GITHUB_ENV"
 
+      - name: Install dbt packages
+        run: uv run dbt deps --project-dir dbt --profiles-dir dbt
+
+      - name: Validate dbt project
+        run: uv run dbt parse --project-dir dbt --profiles-dir dbt
+
+  # Dagster validation
+  validate-dagster:
+    name: Dagster definitions
+    needs: validate-dbt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Load environment from .env.example
+        run: grep -v '^#' .env.example | grep -v '^$' >> "$GITHUB_ENV"
+
+      - name: Install dbt packages
+        run: uv run dbt deps --project-dir dbt --profiles-dir dbt
+
       - name: Generate dbt manifest
         run: uv run dbt parse --project-dir dbt --profiles-dir dbt
 
       - name: Validate Dagster definitions
         run: uv run dagster definitions validate
+
+  # Tests
+  test:
+    name: Pytest
+    needs: [validate-dbt, validate-dagster]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Load environment from .env.example
+        run: grep -v '^#' .env.example | grep -v '^$' >> "$GITHUB_ENV"
+
+      - name: Install dbt packages
+        run: uv run dbt deps --project-dir dbt --profiles-dir dbt
+
+      - name: Generate dbt manifest
+        run: uv run dbt parse --project-dir dbt --profiles-dir dbt
 
       - name: Run tests with coverage
         run: uv run pytest tests/ --cov=data_platform --cov-report=json:coverage.json
