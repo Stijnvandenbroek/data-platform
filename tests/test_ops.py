@@ -9,6 +9,7 @@ from data_platform.ops.check_source_freshness import (
     SourceFreshnessConfig,
 )
 from data_platform.ops.elementary import (
+    _cleanup_old_elementary_data,
     _elementary_schema_exists,
     elementary_generate_report,
     elementary_run_models,
@@ -108,21 +109,62 @@ class TestElementaryRunModels:
 # elementary_generate_report
 
 
+class TestCleanupOldElementaryData:
+    @patch("data_platform.ops.elementary._get_engine")
+    def test_deletes_old_rows(self, mock_get_engine):
+        from unittest.mock import MagicMock
+
+        mock_conn = MagicMock()
+        mock_result = MagicMock()
+        mock_result.rowcount = 5
+        mock_conn.execute.return_value = mock_result
+        mock_engine = MagicMock()
+        mock_engine.begin.return_value.__enter__ = lambda _: mock_conn
+        mock_engine.begin.return_value.__exit__ = MagicMock(return_value=False)
+        mock_get_engine.return_value = mock_engine
+
+        context = build_op_context()
+        _cleanup_old_elementary_data(context)
+        assert mock_conn.execute.call_count == 4
+
+    @patch("data_platform.ops.elementary._get_engine")
+    def test_logs_when_no_rows_deleted(self, mock_get_engine):
+        from unittest.mock import MagicMock
+
+        mock_conn = MagicMock()
+        mock_result = MagicMock()
+        mock_result.rowcount = 0
+        mock_conn.execute.return_value = mock_result
+        mock_engine = MagicMock()
+        mock_engine.begin.return_value.__enter__ = lambda _: mock_conn
+        mock_engine.begin.return_value.__exit__ = MagicMock(return_value=False)
+        mock_get_engine.return_value = mock_engine
+
+        context = build_op_context()
+        _cleanup_old_elementary_data(context)
+        assert mock_conn.execute.call_count == 4
+
+
+# elementary_generate_report
+
+
+@patch("data_platform.ops.elementary._cleanup_old_elementary_data")
 class TestElementaryGenerateReport:
     @patch("data_platform.ops.elementary.subprocess.Popen")
-    def test_calls_edr_report(self, mock_popen):
+    def test_calls_edr_report(self, mock_popen, mock_cleanup):
         mock_popen.return_value = _mock_popen(
             returncode=0, stdout_lines=["report generated\n"]
         )
         context = build_op_context()
         elementary_generate_report(context)
+        mock_cleanup.assert_called_once()
         mock_popen.assert_called_once()
         args = mock_popen.call_args[0][0]
         assert "edr" in args
         assert "report" in args
 
     @patch("data_platform.ops.elementary.subprocess.Popen")
-    def test_raises_on_failure(self, mock_popen):
+    def test_raises_on_failure(self, mock_popen, mock_cleanup):
         mock_popen.return_value = _mock_popen(
             returncode=1, stdout_lines=["fatal error\n"]
         )
@@ -131,7 +173,7 @@ class TestElementaryGenerateReport:
             elementary_generate_report(context)
 
     @patch("data_platform.ops.elementary.subprocess.Popen")
-    def test_success_returns_none(self, mock_popen):
+    def test_success_returns_none(self, mock_popen, mock_cleanup):
         mock_popen.return_value = _mock_popen(returncode=0, stdout_lines=["done\n"])
         context = build_op_context()
         result = elementary_generate_report(context)
