@@ -58,13 +58,15 @@ def elementary_run_models(context: OpExecutionContext) -> None:
         str(_DBT_DIR),
     ]
     context.log.info(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.stdout:
-        context.log.info(result.stdout)
-    if result.stderr:
-        context.log.warning(result.stderr)
-    if result.returncode != 0:
-        raise Exception(f"dbt run elementary failed with exit code {result.returncode}")
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
+    assert process.stdout is not None
+    for line in process.stdout:
+        context.log.info(line.rstrip())
+    returncode = process.wait()
+    if returncode != 0:
+        raise Exception(f"dbt run elementary failed with exit code {returncode}")
 
 
 @op(ins={"after": In(Nothing)})
@@ -82,13 +84,19 @@ def elementary_generate_report(context: OpExecutionContext) -> None:
         str(_DBT_DIR),
         "--file-path",
         str(report_path),
+        "--days-back",
+        "3",
+        "--executions-limit",
+        "30",
     ]
     context.log.info(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.stdout:
-        context.log.info(result.stdout)
-    if result.stderr:
-        context.log.warning(result.stderr)
-    if result.returncode != 0:
-        raise Exception(f"edr report failed with exit code {result.returncode}")
+    process = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
+    assert process.stdout is not None
+    for line in process.stdout:
+        context.log.info(line.rstrip())
+    returncode = process.wait()
+    if returncode != 0:
+        raise Exception(f"edr report failed with exit code {returncode}")
     context.log.info("Elementary report generated successfully.")
