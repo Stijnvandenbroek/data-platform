@@ -125,7 +125,8 @@ class TestCleanupOldElementaryData:
 
         context = build_op_context()
         _cleanup_old_elementary_data(context)
-        assert mock_conn.execute.call_count == 4
+        # 4 cleanup DELETEs + 3 dedup DELETEs = 7
+        assert mock_conn.execute.call_count == 7
 
     @patch("data_platform.ops.elementary._get_engine")
     def test_logs_when_no_rows_deleted(self, mock_get_engine):
@@ -142,7 +143,8 @@ class TestCleanupOldElementaryData:
 
         context = build_op_context()
         _cleanup_old_elementary_data(context)
-        assert mock_conn.execute.call_count == 4
+        # 4 cleanup DELETEs + 3 dedup DELETEs = 7
+        assert mock_conn.execute.call_count == 7
 
 
 # elementary_generate_report

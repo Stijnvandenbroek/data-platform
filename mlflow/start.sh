@@ -1,7 +1,10 @@
 #!/bin/sh
 set -e
 
-pip install --quiet mlflow psycopg2-binary
+pip install --quiet "mlflow==3.10.1" psycopg2-binary
+
+# Disable GenAI background job workers (saves ~700MB on small VMs)
+export MLFLOW_SERVER_ENABLE_JOB_EXECUTION=false
 
 # Ensure the mlflow database exists before starting the server.
 # docker-entrypoint-initdb.d scripts only run on first init, so this
@@ -37,3 +40,4 @@ exec mlflow server \
     --default-artifact-root=mlflow-artifacts:/ \
     --allowed-hosts="*" \
     --cors-allowed-origins="*"
+    -w 2

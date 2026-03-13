@@ -10,13 +10,22 @@ from sqlalchemy import create_engine, text
 _DBT_DIR = Path(__file__).parents[2] / "dbt"
 
 
-_DAYS_BACK = 3
+_DAYS_BACK = 1
 
 _CLEANUP_TABLES = [
     "elementary_test_results",
     "dbt_run_results",
     "dbt_invocations",
     "dbt_source_freshness_results",
+]
+
+# Artifact tables that accumulate duplicate rows (one full copy per dbt invocation).
+# We deduplicate these to the latest copy of each unique_id to prevent join explosions
+# in Elementary's report queries.
+_DEDUP_ARTIFACT_TABLES = [
+    "dbt_tests",
+    "dbt_models",
+    "dbt_sources",
 ]
 
 
@@ -100,8 +109,44 @@ def _cleanup_old_elementary_data(context: OpExecutionContext) -> None:
                     f"Cleaned up {result.rowcount} old rows from elementary.{table}"
                 )
                 total += result.rowcount
+
+        # Deduplicate artifact tables: each dbt invocation appends a full copy of
+        # every artifact.  The resulting N×M join explosion in Elementary's report
+        # queries (e.g. get_tests) is the primary cause of OOM.  Keep only the
+        # newest row per unique_id.
+        for table in _DEDUP_ARTIFACT_TABLES:
+            result = conn.execute(
+                text(
+                    f"DELETE FROM elementary.{table} "  # noqa: S608
+                    f"WHERE ctid NOT IN ("
+                    f"  SELECT DISTINCT ON (unique_id) ctid"
+                    f"  FROM elementary.{table}"
+                    f"  ORDER BY unique_id, generated_at DESC"
+                    f")"
+                )
+            )
+            if result.rowcount:
+                context.log.info(
+                    f"Deduplicated {result.rowcount} rows from elementary.{table}"
+                )
+                total += result.rowcount
+
+    # VACUUM reclaims disk space and updates planner statistics after bulk deletes.
+    # Must run outside a transaction block (AUTOCOMMIT), so we use a raw connection
+    # after the DELETE transaction has been committed above.
     if total:
         context.log.info(f"Total rows cleaned: {total}")
+        all_tables = list(_CLEANUP_TABLES) + list(_DEDUP_ARTIFACT_TABLES)
+        raw_conn = engine.raw_connection()
+        try:
+            raw_conn.set_isolation_level(0)  # AUTOCOMMIT
+            cur = raw_conn.cursor()
+            for table in all_tables:
+                cur.execute(f"VACUUM ANALYZE elementary.{table}")  # noqa: S608
+            cur.close()
+        finally:
+            raw_conn.close()
+        context.log.info("VACUUM ANALYZE completed on elementary tables.")
     else:
         context.log.info("No old elementary data to clean up.")
 
@@ -114,6 +159,7 @@ def elementary_generate_report(context: OpExecutionContext) -> None:
     report_path = (
         Path(__file__).parents[2] / "dbt" / "edr_target" / "elementary_report.html"
     )
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         "edr",
         "report",
@@ -124,9 +170,11 @@ def elementary_generate_report(context: OpExecutionContext) -> None:
         "--file-path",
         str(report_path),
         "--days-back",
-        "3",
+        str(_DAYS_BACK),
         "--executions-limit",
-        "30",
+        "10",
+        "--disable-passed-test-metrics",
+        "true",
     ]
     context.log.info(f"Running: {' '.join(cmd)}")
     process = subprocess.Popen(
