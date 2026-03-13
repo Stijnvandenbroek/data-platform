@@ -1,3 +1,4 @@
+-- noqa: disable=LT02
 insert into {{ schema }}.price_history (
     global_id, price, human_price, date, timestamp, source, status
 )

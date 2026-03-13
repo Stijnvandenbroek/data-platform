@@ -29,8 +29,19 @@ jobs:
         run: uv run ruff format --check .
 
   lint-sql:
-    name: SQLFluff
+    name: sqruff
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v5
 
@@ -42,8 +53,15 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: SQLFluff lint
-        run: uv run sqlfluff lint dbt/models data_platform/ --dialect postgres
+      - name: sqruff lint (dbt models)
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        run: cd dbt && uv run sqruff lint models/
+
+      - name: sqruff lint (data_platform)
+        run: uv run sqruff lint data_platform/
 
   lint-yaml-json-md:
     name: Prettier (YAML / JSON / Markdown)
@@ -243,7 +261,7 @@ jobs:
           | Stage | Job | Status |
           | --- | --- | --- |
           | Lint | Ruff | ${{ needs.lint-python.result == 'success' && '✅' || '❌' }} ${{ needs.lint-python.result }} |
-          | Lint | SQLFluff | ${{ needs.lint-sql.result == 'success' && '✅' || '❌' }} ${{ needs.lint-sql.result }} |
+          | Lint | sqruff | ${{ needs.lint-sql.result == 'success' && '✅' || '❌' }} ${{ needs.lint-sql.result }} |
           | Lint | Prettier | ${{ needs.lint-yaml-json-md.result == 'success' && '✅' || '❌' }} ${{ needs.lint-yaml-json-md.result }} |
           | Validate | dbt parse | ${{ needs.validate-dbt.result == 'success' && '✅' || '❌' }} ${{ needs.validate-dbt.result }} |
           | Validate | Dagster definitions | ${{ needs.validate-dagster.result == 'success' && '✅' || '❌' }} ${{ needs.validate-dagster.result }} |

@@ -1,0 +1,28 @@
+[sqruff]
+dialect = postgres
+max_line_length = 100
+exclude_rules = RF04, RF05
+templater = dbt
+
+[sqruff:templater:dbt]
+project_dir = .
+profiles_dir = .
+
+[sqruff:indentation]
+indent_unit = space
+tab_space_size = 4
+
+[sqruff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.literals]
+capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.types]
+extended_capitalisation_policy = lower

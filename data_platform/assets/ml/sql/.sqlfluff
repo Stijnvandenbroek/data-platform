@@ -1,4 +1,0 @@
-[sqlfluff]
-# SQLAlchemy :named_param bind parameters are misinterpreted by sqlfluff
-# as cast operators, causing false LT01 spacing violations. Disable here.
-exclude_rules = LT01

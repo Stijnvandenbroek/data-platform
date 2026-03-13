@@ -34,7 +34,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "ruff",
-    "sqlfluff",
+    "sqruff[dbt]",
     "chardet<6",
     "pre-commit",
 ]

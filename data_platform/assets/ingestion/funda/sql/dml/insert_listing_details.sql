@@ -1,3 +1,4 @@
+-- noqa: disable=LT02
 insert into {{ schema }}.listing_details (
     global_id, tiny_id, title, city, postcode, province,
     neighbourhood, municipality, price, price_formatted,

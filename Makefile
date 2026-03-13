@@ -86,23 +86,25 @@ dagster-dev: ## Start Dagster webserver locally for development
 	uv run dagster dev
 
 ## Quality
-lint: lint-python lint-sql lint-format ## Run all linters (ruff + sqlfluff + prettier)
+lint: lint-python lint-sql lint-format ## Run all linters (ruff + sqruff + prettier)
 
 lint-python: ## Ruff lint + format check
 	uv run ruff check .
 	uv run ruff format --check .
 
-lint-sql: ## SQLFluff lint all SQL (excl. dbt vendor/target dirs)
-	uv run sqlfluff lint dbt/models data_platform/ --dialect postgres
+lint-sql: ## sqruff lint all SQL (excl. dbt vendor/target dirs)
+	set -a && eval $$(grep '^POSTGRES_' .env) && export POSTGRES_HOST=localhost && cd dbt && uv run sqruff lint models/
+	uv run sqruff lint data_platform/
 
 lint-format: ## Prettier check (YAML / Markdown)
 	npx --yes prettier --check "**/*.yml" "**/*.yaml" "**/*.md" \
 		--ignore-path .prettierignore
 
-lint-fix: ## Auto-fix all linters (ruff + sqlfluff + prettier)
+lint-fix: ## Auto-fix all linters (ruff + sqruff + prettier)
 	uv run ruff check --fix .
 	uv run ruff format .
-	uv run sqlfluff fix dbt/models data_platform/ --dialect postgres
+	set -a && eval $$(grep '^POSTGRES_' .env) && export POSTGRES_HOST=localhost && cd dbt && uv run sqruff fix models/
+	uv run sqruff fix data_platform/
 	npx --yes prettier --write "**/*.yml" "**/*.yaml" "**/*.md" \
 		--ignore-path .prettierignore
 

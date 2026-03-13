@@ -1,0 +1,8 @@
+# sqruff crashes on this file due to a parser bug with jinja inside string
+# literals combined with interval expressions (sqruff issue pending)
+data_platform/assets/ingestion/funda/sql/dml/select_new_price_history_listings.sql
+
+# sqruff crashes on dbt incremental models using is_incremental() macro
+# (sqruff issue pending)
+dbt/models/marts/funda_listings.sql
+dbt/models/marts/elo_sample_listings.sql

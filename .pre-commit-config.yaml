@@ -14,19 +14,19 @@ repos:
         language: system
         types: [python]
 
-      - id: sqlfluff-fix
-        name: sqlfluff fix
-        entry: uv run sqlfluff fix --force --dialect postgres
+      - id: sqruff-fix
+        name: sqruff fix
+        entry: uv run sqruff fix
         language: system
         types: [sql]
-        exclude: ^(dbt/target/|dbt/dbt_packages/)
+        exclude: ^(dbt/|dbt_packages/)
 
-      - id: sqlfluff-lint
-        name: sqlfluff lint
-        entry: uv run sqlfluff lint --dialect postgres
+      - id: sqruff-lint
+        name: sqruff lint
+        entry: uv run sqruff lint
         language: system
         types: [sql]
-        exclude: ^(dbt/target/|dbt/dbt_packages/)
+        exclude: ^(dbt/|dbt_packages/)
 
       - id: prettier
         name: prettier

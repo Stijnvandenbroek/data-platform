@@ -16,17 +16,17 @@ deployed via Docker Compose.
 
 ## Stack
 
-| Layer          | Tool                                              |
-| -------------- | ------------------------------------------------- |
-| Orchestration  | Dagster (webserver + daemon)                      |
-| Transformation | dbt-core + dbt-postgres                           |
-| ML             | LightGBM, MLflow, scikit-learn                    |
-| Storage        | PostgreSQL 16                                     |
-| Notifications  | Discord webhooks                                  |
-| Observability  | Elementary (report served via nginx)              |
-| CI             | GitHub Actions (Ruff, SQLFluff, Prettier, pytest) |
-| Package / venv | uv                                                |
-| Infrastructure | Docker Compose                                    |
+| Layer          | Tool                                            |
+| -------------- | ----------------------------------------------- |
+| Orchestration  | Dagster (webserver + daemon)                    |
+| Transformation | dbt-core + dbt-postgres                         |
+| ML             | LightGBM, MLflow, scikit-learn                  |
+| Storage        | PostgreSQL 16                                   |
+| Notifications  | Discord webhooks                                |
+| Observability  | Elementary (report served via nginx)            |
+| CI             | GitHub Actions (Ruff, sqruff, Prettier, pytest) |
+| Package / venv | uv                                              |
+| Infrastructure | Docker Compose                                  |
 
 ## Data pipeline
 
@@ -127,7 +127,7 @@ DAGSTER_HOME=$PWD/dagster_home dagster dev
 
 # Useful Make targets
 make validate          # Check Dagster definitions load
-make lint              # Ruff + SQLFluff + Prettier
+make lint              # Ruff + sqruff + Prettier
 make lint-fix          # Auto-fix all linters
 make test              # pytest
 make reload-code       # Rebuild + restart user-code container

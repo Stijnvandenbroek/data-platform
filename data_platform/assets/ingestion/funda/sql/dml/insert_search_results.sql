@@ -1,3 +1,4 @@
+-- noqa: disable=LT02
 insert into {{ schema }}.search_results (
     global_id, title, city, postcode, province, neighbourhood,
     price, living_area, plot_area, bedrooms, rooms, energy_label,

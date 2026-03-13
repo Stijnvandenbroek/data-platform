@@ -1,0 +1,31 @@
+[sqruff]
+dialect = postgres
+max_line_length = 100
+# RF04/RF05: don't require quoted identifiers; allow type-name identifiers
+# LT01: SQLAlchemy :named_param bind parameters are misinterpreted as cast
+#       operators, causing false spacing violations in data_platform/ SQL
+exclude_rules = RF04, RF05, LT01
+templater = jinja
+
+[sqruff:templater:jinja:context]
+schema = raw_funda
+staleness_days = "7"
+
+[sqruff:indentation]
+indent_unit = space
+tab_space_size = 4
+
+[sqruff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.literals]
+capitalisation_policy = lower
+
+[sqruff:rules:capitalisation.types]
+extended_capitalisation_policy = lower

@@ -1,0 +1,4 @@
+# sqruff crashes on dbt incremental models using is_incremental() macro
+# (sqruff issue pending)
+models/marts/funda_listings.sql
+models/marts/elo_sample_listings.sql
