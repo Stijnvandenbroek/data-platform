@@ -12,7 +12,7 @@ from data_platform.jobs.funda import funda_ingestion_job, funda_raw_quality_job
 funda_ingestion_schedule = ScheduleDefinition(
     name="funda_ingestion_schedule",
     job=funda_ingestion_job,
-    cron_schedule="*/15 * * * *",
+    cron_schedule="0 * * * *",
     run_config=RunConfig(
         ops={
             "raw_funda_search_results": FundaSearchConfig(),
