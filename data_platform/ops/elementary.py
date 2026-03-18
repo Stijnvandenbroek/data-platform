@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, text
 _DBT_DIR = Path(__file__).parents[2] / "dbt"
 
 
-_DAYS_BACK = 1
+_DAYS_BACK = 7
 
 _CLEANUP_TABLES = [
     "elementary_test_results",
