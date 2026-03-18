@@ -60,7 +60,6 @@ def _best_run(experiment_name: str, metric: str, ascending: bool):
     deps=["elo_prediction_model", AssetKey(["marts", "funda_listings"])],
     group_name="ml",
     kinds={"python", "mlflow"},
-    tags={"manual": "true"},
     description=(
         "Load the best ELO prediction model from MLflow and infer scores "
         "for all listings that have not been scored yet."

@@ -3,16 +3,25 @@ select
     ep.predicted_elo,
     fl.title,
     fl.city,
+    fl.postcode,
+    fl.neighbourhood,
     fl.url,
     fl.current_price,
     fl.living_area,
+    fl.plot_area,
     fl.bedrooms,
     fl.rooms,
     fl.energy_label,
     fl.price_per_sqm,
+    fl.object_type,
+    fl.house_type,
+    fl.construction_year,
+    fl.offering_type,
+    sr.broker_name,
     ep.scored_at
 from elo.predictions as ep
 inner join marts.funda_listings as fl on ep.global_id = fl.global_id
+left join raw_funda.search_results as sr on ep.global_id = sr.global_id
 left join elo.notified as en on ep.global_id = en.global_id
 where
     ep.predicted_elo >= :min_elo
