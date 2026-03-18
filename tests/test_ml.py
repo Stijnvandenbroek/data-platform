@@ -157,13 +157,22 @@ class TestBuildEmbed:
             "predicted_elo": 1650.0,
             "current_price": 350_000,
             "city": "Amsterdam",
+            "postcode": "1234AB",
+            "neighbourhood": "Centrum",
             "living_area": 80,
+            "bedrooms": 3,
             "rooms": 4,
             "energy_label": "A",
             "price_per_sqm": 4375,
             "title": "Teststraat 1",
             "global_id": "abc123",
             "url": "https://funda.nl/abc123",
+            "object_type": "apartment",
+            "house_type": "Appartement",
+            "construction_year": 2000,
+            "offering_type": "buy",
+            "broker_name": "Test Makelaars",
+            "plot_area": 120,
         }
         data.update(overrides)
         return SimpleNamespace(**data)
@@ -171,24 +180,27 @@ class TestBuildEmbed:
     def test_all_fields_present(self):
         embed = _build_embed(self._make_row())
         field_names = [f["name"] for f in embed["fields"]]
-        assert "Predicted ELO" in field_names
-        assert "Price" in field_names
-        assert "City" in field_names
-        assert "Living area" in field_names
-        assert "Rooms" in field_names
-        assert "Energy label" in field_names
+        assert "💰 Price" in field_names
+        assert "⭐ ELO Score" in field_names
+        assert "📐 Living area" in field_names
         assert "€/m²" in field_names
+        assert "🛏️ Rooms" in field_names
+        assert "⚡ Energy" in field_names
+        # Smart card description includes address and broker
+        assert "1234AB" in embed["description"]
+        assert "Amsterdam" in embed["description"]
+        assert "Test Makelaars" in embed["description"]
 
     def test_no_price_per_sqm_omits_field(self):
         embed = _build_embed(self._make_row(price_per_sqm=None))
         field_names = [f["name"] for f in embed["fields"]]
         assert "€/m²" not in field_names
-        assert len(embed["fields"]) == 6
 
     def test_missing_city_shows_dash(self):
-        embed = _build_embed(self._make_row(city=None))
-        city_field = next(f for f in embed["fields"] if f["name"] == "City")
-        assert city_field["value"] == "–"
+        embed = _build_embed(
+            self._make_row(city=None, postcode=None, neighbourhood=None)
+        )
+        assert "–" in embed["description"]
 
     def test_title_fallback_to_global_id(self):
         embed = _build_embed(self._make_row(title=None))
@@ -456,12 +468,21 @@ class TestListingAlertAsset:
             "predicted_elo": [1650.0 + i * 10 for i in range(n)],
             "current_price": [350_000 + i * 10_000 for i in range(n)],
             "city": ["Amsterdam", "Rotterdam", "Utrecht"][:n],
+            "postcode": ["1234AB", "3000AA", "3500BB"][:n],
+            "neighbourhood": ["Centrum", "West", "Oost"][:n],
             "living_area": [80 + i * 5 for i in range(n)],
+            "bedrooms": [3, 2, 4][:n],
             "rooms": [4, 5, 3][:n],
             "energy_label": ["A", "B", "C"][:n],
             "price_per_sqm": [4375, 4000, 3800][:n],
             "title": [f"Teststraat {i}" for i in range(n)],
             "url": [f"https://funda.nl/{i}" for i in range(n)],
+            "object_type": ["apartment"] * n,
+            "house_type": ["Appartement"] * n,
+            "construction_year": [2000] * n,
+            "offering_type": ["buy"] * n,
+            "broker_name": ["Test Makelaars"] * n,
+            "plot_area": [120] * n,
         }
         return pd.DataFrame(data)
 
@@ -527,12 +548,21 @@ class TestListingAlertAsset:
             "predicted_elo": [1700.0] * 15,
             "current_price": [400_000] * 15,
             "city": ["Amsterdam"] * 15,
+            "postcode": ["1234AB"] * 15,
+            "neighbourhood": ["Centrum"] * 15,
             "living_area": [90] * 15,
+            "bedrooms": [3] * 15,
             "rooms": [4] * 15,
             "energy_label": ["A"] * 15,
             "price_per_sqm": [4444] * 15,
             "title": [f"Street {i}" for i in range(15)],
             "url": [f"https://funda.nl/{i}" for i in range(15)],
+            "object_type": ["apartment"] * 15,
+            "house_type": ["Appartement"] * 15,
+            "construction_year": [2000] * 15,
+            "offering_type": ["buy"] * 15,
+            "broker_name": ["Test Makelaars"] * 15,
+            "plot_area": [120] * 15,
         }
         mock_read_sql.return_value = pd.DataFrame(data)
         mock_post.return_value = MagicMock(status_code=200)

@@ -42,7 +42,7 @@ class FundaSearchConfig(Config):
     energy_label: str | None = None
     radius_km: int | None = 50
     sort: str = "newest"
-    max_pages: int = 10
+    max_pages: int = 2
 
 
 class FundaDetailsConfig(Config):

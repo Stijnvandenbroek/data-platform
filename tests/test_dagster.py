@@ -73,8 +73,8 @@ class TestScheduleSpecific:
     def test_elementary_schedule_daily(self):
         assert elementary_refresh_schedule.cron_schedule == "0 9 * * *"
 
-    def test_funda_ingestion_every_4_hours(self):
-        assert funda_ingestion_schedule.cron_schedule == "0 */4 * * *"
+    def test_funda_ingestion_every_15_minutes(self):
+        assert funda_ingestion_schedule.cron_schedule == "*/15 * * * *"
 
     def test_funda_quality_daily(self):
         assert funda_raw_quality_schedule.cron_schedule == "0 8 * * *"

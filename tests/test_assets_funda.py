@@ -305,7 +305,7 @@ class TestFundaSearchConfig:
         assert cfg.location == "woerden"
         assert cfg.offering_type == "buy"
         assert cfg.sort == "newest"
-        assert cfg.max_pages == 10
+        assert cfg.max_pages == 2
         assert cfg.price_min == 300000
         assert cfg.price_max == 500000
 
