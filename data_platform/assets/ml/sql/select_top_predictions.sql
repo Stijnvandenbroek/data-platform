@@ -24,6 +24,9 @@ inner join marts.funda_listings as fl on ep.global_id = fl.global_id
 left join raw_funda.search_results as sr on ep.global_id = sr.global_id
 left join elo.notified as en on ep.global_id = en.global_id
 where
-    ep.predicted_elo >= :min_elo
-    and en.global_id is null
+    en.global_id is null
+    and (
+        ep.predicted_elo >= :min_elo
+        or fl.city in ('Woerden', 'Vleuten', 'De Meern')
+    )
 order by ep.predicted_elo desc
