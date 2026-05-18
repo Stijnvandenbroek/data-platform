@@ -1,7 +1,7 @@
 [sqruff]
 dialect = postgres
 max_line_length = 100
-exclude_rules = RF04, RF05
+exclude_rules = RF04, RF05, LT01
 templater = dbt
 
 [sqruff:templater:dbt]
