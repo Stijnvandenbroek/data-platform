@@ -9,7 +9,7 @@ dependencies = [
     "dagster-dbt",
     "dbt-core",
     "dbt-postgres",
-    "pyfunda",
+    "pyfunda==3.1.4",
     "jinja2",
     "elementary-data[postgres]",
     "mlflow",
