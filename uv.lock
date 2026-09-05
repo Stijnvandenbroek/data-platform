@@ -889,7 +889,7 @@ requires-dist = [
     { name = "lightgbm" },
     { name = "mlflow" },
     { name = "pandas" },
-    { name = "pyfunda" },
+    { name = "pyfunda", specifier = "==3.1.5" },
     { name = "scikit-learn" },
 ]
 
@@ -3192,16 +3192,16 @@ wheels = [
 
 [[package]]
 name = "pyfunda"
-version = "2.5.0"
+version = "3.1.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "curl-cffi" },
     { name = "tls-client" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/03/06/ceb57233bf2e1dcb70478c85d97375f9708ffb737b7e848413c25568a823/pyfunda-2.5.0.tar.gz", hash = "sha256:bd4774a3b0de2a471b40e7843b8cdcf231cdca2e18858ee180c41a62b396054a", size = 41477, upload-time = "2026-02-17T20:24:57.494Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/41/a423d9c213ab35eb906af5dcdf774ed351c9feb719301529d12c5810984f/pyfunda-3.1.5.tar.gz", hash = "sha256:a458e04d39cb16b988a7bd7fe93ff7ace6a38591edb392322fb87a441e958e1d", size = 70605, upload-time = "2026-08-29T21:53:04.255Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/bc/2ccdedc7913c08876c6d4de7bc8992f6469da01e12a880dea9f15f9b775b/pyfunda-2.5.0-py3-none-any.whl", hash = "sha256:cc8db2d47c5a64b03f538895ff88494df49ba2a7ee06ebb32d0eb8bb27d06a91", size = 31409, upload-time = "2026-02-17T20:24:58.253Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/2f/1885fbd690b52545eed750facddfeb762af3654ab39096c955ee0038c372/pyfunda-3.1.5-py3-none-any.whl", hash = "sha256:373a37e0bb6dce6909fb35d4b9b19ea39f9ab43eb5de6a916bed6f251e152f16", size = 50971, upload-time = "2026-08-29T21:53:02.993Z" },
 ]
 
 [[package]]

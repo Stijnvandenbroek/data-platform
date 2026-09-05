@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily logical backup of data-platform PostgreSQL
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target

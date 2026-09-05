@@ -11,7 +11,7 @@ from dagster import (
     MetadataValue,
     asset,
 )
-from funda import Listing
+from funda import Address, Listing, Urls
 from sqlalchemy import text
 
 from data_platform.helpers import (
@@ -25,6 +25,54 @@ from data_platform.resources import FundaResource, PostgresResource
 
 _SQL_DIR = Path(__file__).parent / "sql"
 _SCHEMA = "raw_funda"
+
+
+def flatten_listing(listing: Listing) -> dict:
+    """Map a pyfunda 3.x Listing onto the flat key set used by the DB rows."""
+    broker = listing.broker
+    details = listing.property_details
+    insights = listing.insights
+    return {
+        "global_id": listing.global_id,
+        "tiny_id": listing.tiny_id,
+        "title": listing.title,
+        "city": listing.city,
+        "postcode": listing.postcode,
+        "province": listing.address.province,
+        "neighbourhood": listing.address.neighbourhood,
+        "municipality": listing.address.municipality,
+        "price": listing.price.amount,
+        "price_formatted": listing.price.formatted,
+        "status": details.status,
+        "offering_type": listing.offering_type,
+        "object_type": details.object_type,
+        "house_type": details.house_type,
+        "construction_type": details.construction_type,
+        "construction_year": details.construction_year,
+        "energy_label": listing.energy_label,
+        "living_area": listing.living_area,
+        "plot_area": listing.plot_area,
+        "bedrooms": listing.bedrooms,
+        "rooms": listing.rooms_count,
+        "description": listing.description,
+        "publish_date": listing.publication_date,
+        "publication_date": listing.publication_date,
+        "latitude": listing.location.latitude,
+        "longitude": listing.location.longitude,
+        "has_garden": details.features.get("has_garden"),
+        "has_balcony": details.features.get("has_balcony"),
+        "has_solar_panels": details.features.get("has_solar_panels"),
+        "has_heat_pump": details.features.get("has_heat_pump"),
+        "has_roof_terrace": details.features.get("has_roof_terrace"),
+        "is_energy_efficient": details.features.get("is_energy_efficient"),
+        "is_monument": details.features.get("is_monument"),
+        "url": listing.url,
+        "photo_count": listing.media.photo_count,
+        "views": insights.views if insights else None,
+        "saves": insights.saves if insights else None,
+        "broker_id": str(broker.id) if broker and broker.id else "",
+        "broker_name": broker.name if broker else None,
+    }
 
 
 class FundaSearchConfig(Config):
@@ -73,21 +121,21 @@ def raw_funda_search_results(
 
     kwargs: dict = {
         "location": [loc.strip() for loc in config.location.split(",")],
-        "offering_type": config.offering_type,
+        "category": config.offering_type,
         "sort": config.sort,
     }
     if config.price_min is not None:
-        kwargs["price_min"] = config.price_min
+        kwargs["min_price"] = config.price_min
     if config.price_max is not None:
-        kwargs["price_max"] = config.price_max
+        kwargs["max_price"] = config.price_max
     if config.area_min is not None:
-        kwargs["area_min"] = config.area_min
+        kwargs["min_area"] = config.area_min
     if config.area_max is not None:
-        kwargs["area_max"] = config.area_max
+        kwargs["max_area"] = config.area_max
     if config.plot_min is not None:
-        kwargs["plot_min"] = config.plot_min
+        kwargs["min_plot"] = config.plot_min
     if config.plot_max is not None:
-        kwargs["plot_max"] = config.plot_max
+        kwargs["max_plot"] = config.plot_max
     if config.object_type:
         kwargs["object_type"] = [t.strip() for t in config.object_type.split(",")]
     if config.energy_label:
@@ -99,7 +147,7 @@ def raw_funda_search_results(
     for page in range(config.max_pages):
         context.log.info(f"Fetching search page {page + 1}/{config.max_pages}...")
         kwargs["page"] = page
-        results = client.search_listing(**kwargs)
+        results = client.search(**kwargs)
         if not results:
             context.log.info("No more results.")
             break
@@ -121,7 +169,7 @@ def raw_funda_search_results(
 
     rows = []
     for listing in all_listings:
-        d = listing.to_dict()
+        d = flatten_listing(listing)
         rows.append(
             {
                 "global_id": d.get("global_id"),
@@ -237,8 +285,8 @@ def raw_funda_listing_details(
     errors = 0
     for i, gid in enumerate(ids):
         try:
-            listing = client.get_listing(int(gid))
-            d = listing.to_dict()
+            listing = client.listing(int(gid))
+            d = flatten_listing(listing)
             rows.append(
                 {
                     "global_id": d.get("global_id"),
@@ -356,7 +404,7 @@ def raw_funda_price_history(
         )
 
     # Fetch listing metadata (url, title, postcode) from the DB so we can call
-    # get_price_history without re-fetching each listing from the Funda API.
+    # price_history without re-fetching each listing from the Funda API.
     with engine.connect() as conn:
         if config.fetch_all:
             query = text(
@@ -391,19 +439,22 @@ def raw_funda_price_history(
     errors = 0
     for i, (gid, url, title, postcode) in enumerate(listings):
         try:
-            stub = Listing(data={"url": url, "title": title, "postcode": postcode})
-            history = client.get_price_history(stub)
+            stub = Listing(
+                address=Address(title=title, postcode=postcode),
+                urls=Urls(full=url),
+            )
+            history = client.price_history(stub)
             rows = [
                 {
                     "global_id": gid,
-                    "price": safe_int(entry.get("price")),
-                    "human_price": entry.get("human_price"),
-                    "date": entry.get("date"),
-                    "timestamp": entry.get("timestamp"),
-                    "source": entry.get("source"),
-                    "status": entry.get("status"),
+                    "price": safe_int(change.price),
+                    "human_price": change.human_price,
+                    "date": change.date,
+                    "timestamp": change.timestamp,
+                    "source": change.source,
+                    "status": change.status,
                 }
-                for entry in history
+                for change in history.changes
             ]
             if rows:
                 postgres.execute_many(

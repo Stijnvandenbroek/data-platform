@@ -1,0 +1,21 @@
+[Unit]
+Description=Daily logical backup of data-platform PostgreSQL
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/bin/backup_postgres.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=backup_postgres
+
+# The backup directory is bind-mounted into the postgres container at /app/backups.
+# On the host it lives under /home/stijn/git/data-platform/backups.
+# Avoid passing secrets through the environment.
+# The script connects through the postgres container socket; no password needed.
+Environment="HOME=/home/stijn/git/data-platform/backups"
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/stijn/git/data-platform/backups

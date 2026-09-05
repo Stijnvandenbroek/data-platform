@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock
 
 from dagster import materialize
+from funda import PriceChange, PriceHistory
 
 from data_platform.assets.ingestion.funda import (
     raw_funda_listing_details,
@@ -109,7 +110,7 @@ class TestFundaSearchResults:
 
     def test_no_results_returns_count_zero(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         result = self._run(client)
         assert result.success
         mat = result.asset_materializations_for_node("raw_funda_search_results")
@@ -117,7 +118,7 @@ class TestFundaSearchResults:
 
     def test_results_are_inserted(self):
         client = MagicMock()
-        client.search_listing.return_value = [make_mock_listing(_SEARCH_LISTING_DATA)]
+        client.search.return_value = [make_mock_listing(_SEARCH_LISTING_DATA)]
         rows = []
         result = self._run(client, inserted_rows=rows)
         assert result.success
@@ -127,7 +128,7 @@ class TestFundaSearchResults:
 
     def test_pagination_stops_on_empty_page(self):
         client = MagicMock()
-        client.search_listing.side_effect = [
+        client.search.side_effect = [
             [make_mock_listing(_SEARCH_LISTING_DATA)],
             [],
         ]
@@ -143,54 +144,92 @@ class TestFundaSearchResults:
             },
         )
         assert result.success
-        assert client.search_listing.call_count == 2
+        assert client.search.call_count == 2
         assert len(inserted) == 1
 
     def test_location_split_by_comma(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"location": "amsterdam, rotterdam"})
-        call_kwargs = client.search_listing.call_args[1]
+        call_kwargs = client.search.call_args[1]
         assert call_kwargs["location"] == ["amsterdam", "rotterdam"]
 
     def test_price_max_forwarded(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"price_max": 500000})
-        assert client.search_listing.call_args[1]["price_max"] == 500000
+        assert client.search.call_args[1]["max_price"] == 500000
 
     def test_price_min_forwarded(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"price_min": 200000})
-        assert client.search_listing.call_args[1]["price_min"] == 200000
+        assert client.search.call_args[1]["min_price"] == 200000
 
     def test_area_min_forwarded(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"area_min": 50})
-        assert client.search_listing.call_args[1]["area_min"] == 50
+        assert client.search.call_args[1]["min_area"] == 50
 
     def test_radius_km_forwarded(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"location": "1012AB", "radius_km": 10})
-        assert client.search_listing.call_args[1]["radius_km"] == 10
+        assert client.search.call_args[1]["radius_km"] == 10
 
     def test_object_type_split_by_comma(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"object_type": "house, apartment"})
-        assert client.search_listing.call_args[1]["object_type"] == [
+        assert client.search.call_args[1]["object_type"] == [
             "house",
             "apartment",
         ]
 
     def test_energy_label_split_by_comma(self):
         client = MagicMock()
-        client.search_listing.return_value = []
+        client.search.return_value = []
         self._run(client, config={"energy_label": "A, A+"})
-        assert client.search_listing.call_args[1]["energy_label"] == ["A", "A+"]
+        assert client.search.call_args[1]["energy_label"] == ["A", "A+"]
+
+    def test_uses_supported_search_api_not_obsolete_search_listing(self):
+        client = MagicMock()
+        client.search.return_value = [make_mock_listing(_SEARCH_LISTING_DATA)]
+        inserted = []
+        result = self._run(client, inserted_rows=inserted)
+        assert result.success
+        assert len(inserted) == 1
+        assert any(call[0] == "search" for call in client.method_calls)
+        assert not any(call[0] == "search_listing" for call in client.method_calls)
+        assert client.search.call_args[1]["category"] == "buy"
+        assert client.search.call_args[1]["page"] == 0
+
+    def test_forwarded_filters_are_valid_for_pyfunda_3(self):
+        from funda.constants import SEARCH_TEMPLATE_ID
+        from funda.search import _Search
+
+        assert SEARCH_TEMPLATE_ID == "search_result_20260227"
+
+        kwargs = {
+            "location": ["woerden"],
+            "category": "buy",
+            "sort": "newest",
+            "min_price": 300000,
+            "max_price": 500000,
+            "min_area": 50,
+            "max_plot": 200,
+            "object_type": ["house", "apartment"],
+            "energy_label": ["A", "A+"],
+            "radius_km": 50,
+            "page": 0,
+        }
+        search = _Search.from_filters(**kwargs)
+        params = search.to_params()
+        assert params["price"]["selling_price"]["from"] == 300000
+        assert params["floor_area"]["from"] == 50
+        assert params["page"] == {"from": 0}
+        assert "search_result_20260227" in search.to_payload()
 
 
 class TestFundaListingDetails:
@@ -215,7 +254,7 @@ class TestFundaListingDetails:
     def test_details_fetched_and_inserted(self):
         engine, _, _ = make_mock_engine(select_rows=[("1234567",)])
         client = MagicMock()
-        client.get_listing.return_value = make_mock_listing(_DETAIL_LISTING_DATA)
+        client.listing.return_value = make_mock_listing(_DETAIL_LISTING_DATA)
         inserted = []
         result = self._run(client, engine, inserted)
         assert result.success
@@ -228,7 +267,7 @@ class TestFundaListingDetails:
     def test_failed_fetch_counted_as_error(self):
         engine, _, _ = make_mock_engine(select_rows=[("1234567",), ("9999999",)])
         client = MagicMock()
-        client.get_listing.side_effect = [
+        client.listing.side_effect = [
             make_mock_listing(_DETAIL_LISTING_DATA),
             RuntimeError("API error"),
         ]
@@ -271,24 +310,26 @@ class TestFundaPriceHistory:
             ]
         )
         client = MagicMock()
-        client.get_price_history.return_value = [
-            {
-                "price": 350000,
-                "human_price": "\u20ac350.000",
-                "date": "1 jan, 2026",
-                "timestamp": "2026-01-01T00:00:00",
-                "source": "Funda",
-                "status": "asking_price",
-            },
-            {
-                "price": 320000,
-                "human_price": "\u20ac320.000",
-                "date": "1 jan, 2024",
-                "timestamp": "2024-01-01T00:00:00",
-                "source": "WOZ",
-                "status": "woz",
-            },
-        ]
+        client.price_history.return_value = PriceHistory(
+            changes=(
+                PriceChange(
+                    price=350000,
+                    human_price="\u20ac350.000",
+                    date="1 jan, 2026",
+                    timestamp="2026-01-01T00:00:00",
+                    source="Funda",
+                    status="asking_price",
+                ),
+                PriceChange(
+                    price=320000,
+                    human_price="\u20ac320.000",
+                    date="1 jan, 2024",
+                    timestamp="2024-01-01T00:00:00",
+                    source="WOZ",
+                    status="woz",
+                ),
+            )
+        )
         inserted = []
         result = self._run(client, engine, inserted)
         assert result.success
